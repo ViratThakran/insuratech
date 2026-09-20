@@ -1,90 +1,131 @@
-import { useEffect, useRef, useState } from "react";
-import { c, font, gutter, meaning, micro, shell, statement } from "../theme";
-import { Act, Enter, Explain, Micro, State, Statement, Ticker } from "../components/kit";
-import { Thread } from "../components/Thread";
-import { map, reducedMotion, useScrollY } from "../lib/scroll";
+import { c, font, gutter, micro, shell, statement } from "../theme";
+import { DocumentAIProductPreview } from "../components/DocumentAIProductPreview";
+import { Plate } from "../components/Plate";
+import { ScrollTrigger, gsap, useScene } from "../lib/motion";
 
-/* ------------------------------------------------------------------ *
- * SCENE 05 — DOCUMENT AI                                              *
- * A physically present specimen policy is read, clause by clause, and  *
- * becomes a structured record. Fictional document, fictional values.   *
- * ------------------------------------------------------------------ */
+/* ==========================================================================
+   03 — DOCUMENT AI
+   ==========================================================================
+   A real fictional policy, set as a document rather than a UI card. Aurevia
+   reads it: a clause is marked, the mark travels, the clause lifts off the
+   page and lands as a structured field. When the page has been decomposed,
+   the fields become the product.
+   ========================================================================== */
 
-type Field = { key: string; value: string; tone?: "aurevia" | "change" };
+type Clause = {
+  /** the sentence as it appears in the policy */
+  text?: (string | { t: string; lift: number })[];
+  head?: string;
+};
 
-const fields: Field[] = [
-  { key: "Policy number", value: "AV-PR-4021-A" },
-  { key: "Insured", value: "Example Industries Ltd." },
-  { key: "Policy period", value: "01 JAN 2026 → 01 JAN 2027" },
-  { key: "Property limit", value: "₹65,00,00,000", tone: "aurevia" },
-  { key: "Deductible", value: "₹5,00,000" },
-  { key: "Endorsement 03", value: "Flood sub-limit ₹15,00,00,000", tone: "change" },
-];
-
-const doc: {
-  kind: "title" | "rule" | "meta" | "head" | "clause" | "note";
-  parts: (string | { t: string; h: number })[];
-}[] = [
-  { kind: "title", parts: ["COMMERCIAL PROPERTY INSURANCE POLICY"] },
-  { kind: "rule", parts: [""] },
-  { kind: "meta", parts: ["Policy No. ", { t: "AV-PR-4021-A", h: 0 }, "   ·   Issued 18 December 2025"] },
-  { kind: "meta", parts: ["Insured: ", { t: "Example Industries Ltd.", h: 1 }, ", Pune, Maharashtra"] },
+const policy: Clause[] = [
+  { head: "Commercial Property Insurance Policy" },
   {
-    kind: "meta",
-    parts: ["Policy Period: ", { t: "01 January 2026 to 01 January 2027", h: 2 }, ", both days inclusive"],
+    text: [
+      "This Policy is issued to ",
+      { t: "Example Industries Limited", lift: 0 },
+      " of Pune, Maharashtra, under policy number ",
+      { t: "AV-PR-4021-A", lift: 1 },
+      ".",
+    ],
   },
-  { kind: "head", parts: ["Section 4 — Limits of liability"] },
   {
-    kind: "clause",
-    parts: [
-      "The Company shall indemnify the Insured against physical loss of or damage to the Property Insured, up to a limit of ",
-      { t: "₹65,00,00,000", h: 3 },
+    text: [
+      "The Period of Insurance is ",
+      { t: "01 January 2026 to 01 January 2027", lift: 2 },
+      ", both days inclusive, unless cancelled earlier in accordance with Section 9.",
+    ],
+  },
+  { head: "Section 4 — Limits of liability" },
+  {
+    text: [
+      "Coverage is provided for ",
+      { t: "physical loss of or damage to the Property Insured", lift: 3 },
+      " arising from an insured peril, up to a limit of ",
+      { t: "₹65,00,00,000", lift: 4 },
       " in respect of any one occurrence, subject to a deductible of ",
-      { t: "₹5,00,000", h: 4 },
+      { t: "₹5,00,000", lift: 5 },
       " each and every claim.",
     ],
   },
-  { kind: "head", parts: ["Endorsements"] },
+  { head: "Endorsements" },
   {
-    kind: "clause",
-    parts: [
-      "Endorsement 03 — Flood and inundation cover is provided within a sub-limit of ",
-      { t: "₹15,00,00,000", h: 5 },
-      ", applicable in the aggregate for the Policy Period.",
+    text: [
+      "Endorsement 03 extends cover to flood and inundation within a sub-limit of ",
+      { t: "₹15,00,00,000", lift: 6 },
+      " in the aggregate. Wording CL-118 applies to all excluded perils.",
     ],
   },
-  { kind: "note", parts: ["Wording CL-114 applies. Consequential loss of any kind is excluded."] },
 ];
 
-const STEPS = fields.length;
+const fields = [
+  { key: "Insured", value: "Example Industries Ltd." },
+  { key: "Policy number", value: "AV-PR-4021-A" },
+  { key: "Policy period", value: "01 JAN 2026 → 01 JAN 2027" },
+  { key: "Coverage", value: "Property damage" },
+  { key: "Limit", value: "₹65,00,00,000", tone: "blue" as const },
+  { key: "Deductible", value: "₹5,00,000" },
+  { key: "Endorsement 03", value: "Flood sub-limit ₹15,00,00,000", tone: "copper" as const },
+];
 
 export function DocumentAI() {
-  const ref = useRef<HTMLElement>(null);
-  const y = useScrollY();
-  const [box, setBox] = useState({ top: 0, height: 1 });
+  const ref = useScene<HTMLElement>(({ root, reduced }) => {
+    if (reduced) {
+      /* the read document beside the record it becomes: the frame that carries
+         the whole idea without needing the scrub */
+      gsap.set(root, { height: "100vh" });
+      gsap.set(".d-page", { yPercent: 0, rotate: 0 });
+      gsap.set(".d-field", { opacity: 1, x: 0 });
+      gsap.set(".d-mark", { scaleX: 1 });
+      return;
+    }
 
-  useEffect(() => {
-    const measure = () => {
-      const el = ref.current;
-      if (!el) return;
-      setBox({ top: el.offsetTop, height: el.offsetHeight });
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    const t = setTimeout(measure, 400);
-    return () => {
-      window.removeEventListener("resize", measure);
-      clearTimeout(t);
-    };
-  }, []);
+    /* the product frame is dark: hand the navigation the right tone for it */
+    ScrollTrigger.create({
+      trigger: root,
+      start: "82% top",
+      /* through to the end of the section, not just the end of the pin, or the
+         navigation flips back to the light tone on the last frame */
+      end: "bottom top",
+      onToggle: (self) => {
+        root.dataset.tone = self.isActive ? "dark" : "paper";
+      },
+    });
 
-  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-  const travel = Math.max(1, box.height - vh);
-  const p = reducedMotion() ? 1 : Math.min(1, Math.max(0, (y - box.top) / travel));
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 0.55 },
+    });
 
-  const run = map(p, 0.14, 0.92, 0, 1);
-  const step = run * STEPS;
-  const done = step >= STEPS;
+    /* the page settles onto the desk */
+    tl.fromTo(".d-page", { yPercent: 8, rotate: 0.6 }, { yPercent: 0, rotate: 0, duration: 1, ease: "power2.out" }, 0);
+
+    /* each clause is marked, then lifts into the record */
+    fields.forEach((_, i) => {
+      const at = 0.9 + i * 0.6;
+      tl.to(`.d-mark-${i}`, { scaleX: 1, duration: 0.28, ease: "power2.inOut" }, at)
+        .to(`.d-lift-${i}`, { backgroundColor: "rgba(82,103,255,0.16)", duration: 0.2 }, at)
+        .to(`.d-lift-${i}`, { color: c.onLightFaint, duration: 0.3 }, at + 0.35)
+        .fromTo(
+          `.d-field-${i}`,
+          { opacity: 0, x: -14 },
+          { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" },
+          at + 0.2
+        );
+    });
+
+    const after = 0.9 + fields.length * 0.6;
+
+    /* the page recedes, the record becomes the product */
+    tl.to(".d-page", { opacity: 0.12, duration: 0.6 }, after)
+      .to(".d-record", { yPercent: -6, opacity: 0.1, duration: 0.8 }, after + 0.4)
+      .fromTo(
+        ".d-product",
+        { opacity: 0, yPercent: 10, scale: 0.94 },
+        { opacity: 1, yPercent: 0, scale: 1, duration: 1.1, ease: "power3.out" },
+        after + 0.5
+      )
+      .fromTo(".d-title", { opacity: 0 }, { opacity: 1, duration: 0.5 }, after + 0.9);
+  });
 
   return (
     <section
@@ -92,329 +133,169 @@ export function DocumentAI() {
       id="document-ai"
       data-scene
       data-tone="paper"
-      data-label="Document AI"
-      data-index="05"
       className="mat"
-      style={{ position: "relative", background: c.paper, color: c.onLight, height: "300vh" }}
+      style={{ position: "relative", background: c.paper, height: "620vh" }}
     >
-      <div
-        style={{
-          position: "sticky",
-          top: 0,
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          overflow: "hidden",
-          padding: "clamp(88px, 11vh, 120px) 0 clamp(28px, 5vh, 56px)",
-        }}
-      >
-        <div style={{ position: "relative", zIndex: 2, maxWidth: shell, width: "100%", margin: "0 auto", padding: `0 ${gutter}` }}>
-          <Enter style={{ marginBottom: "clamp(26px, 4vh, 52px)" }}>
-            <div className="cols c-7-5" style={{ alignItems: "end", gap: "clamp(18px, 3vw, 52px)" }}>
-              <div>
-                <Micro tone="paper">05 — Document AI</Micro>
-                <Statement
-                  tone="paper"
-                  min={1.9}
-                  max={4}
-                  style={{ marginTop: 18 }}
-                  lines={[{ t: "MEET AUREVIA" }, { t: "DOCUMENT AI.", accent: true }]}
-                />
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <Explain tone="paper" delay={120} style={{ maxWidth: "40ch" }}>
-                  Insurance documents carry the detail that matters. Finding, structuring and
-                  comparing it shouldn't require repetitive manual work.
-                </Explain>
-                <div className="fade" style={{ transitionDelay: "200ms" }}>
-                  <State state="live" tone="paper" />
-                </div>
-              </div>
-            </div>
-          </Enter>
+      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
+        {/* the desk the page sits on */}
+        <Plate
+          asset="document"
+          dark={false}
+          position="50% 60%"
+          style={{ position: "absolute", inset: 0, opacity: 0.5 }}
+        />
 
+        <div
+          style={{
+            position: "relative",
+            height: "100%",
+            maxWidth: shell,
+            margin: "0 auto",
+            padding: `clamp(84px, 12vh, 120px) ${gutter} clamp(40px, 6vh, 72px)`,
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 7fr) minmax(0, 4fr)",
+            gap: "clamp(20px, 3vw, 56px)",
+            alignItems: "center",
+          }}
+          className="cols"
+        >
+          {/* ---------------- the document ---------------- */}
           <div
+            className="d-page"
             style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 7fr) minmax(0, 5fr)",
-              gap: "clamp(18px, 2.6vw, 48px)",
-              alignItems: "stretch",
+              position: "relative",
+              background: c.sheet,
+              boxShadow: "0 60px 90px -60px rgba(9,11,14,0.6), 0 2px 0 rgba(255,255,255,0.7) inset",
+              padding: "clamp(26px, 3.4vw, 54px)",
+              maxHeight: "72vh",
+              overflow: "hidden",
             }}
-            className="cols"
           >
-            {/* ---------- the document, as a physical object ---------- */}
-            <div style={{ position: "relative" }}>
-              {/* pages beneath */}
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: "8px -10px -12px 14px",
-                  background: "#F3F0E8",
-                  border: `1px solid ${c.hairLight}`,
-                  boxShadow: "0 18px 40px -34px rgba(10,11,13,0.5)",
-                }}
-              />
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: "4px -5px -6px 7px",
-                  background: "#F7F4EE",
-                  border: `1px solid ${c.hairLight}`,
-                }}
-              />
-
-              <div
-                className="mat"
-                data-tone="sheet"
-                style={{
-                  position: "relative",
-                  background: c.sheet,
-                  border: `1px solid ${c.hairLight}`,
-                  boxShadow: "0 34px 70px -46px rgba(10,11,13,0.55), 0 2px 0 rgba(255,255,255,0.7) inset",
-                  padding: "clamp(22px, 2.8vw, 40px)",
-                  maxHeight: "52vh",
-                  overflow: "hidden",
-                }}
-              >
-                <div
+            {policy.map((block, bi) =>
+              block.head ? (
+                <h3
+                  key={bi}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    marginBottom: 20,
+                    fontFamily: font.sans,
+                    fontSize: "clamp(0.78rem, 0.95vw, 0.92rem)",
+                    fontWeight: 600,
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                    margin: bi === 0 ? "0 0 22px" : "26px 0 12px",
+                    paddingBottom: bi === 0 ? 14 : 0,
+                    borderBottom: bi === 0 ? `1px solid ${c.hairLight}` : "none",
+                    color: c.onLight,
                   }}
                 >
-                  <Micro tone="paper">Specimen · fictional document</Micro>
-                  <Micro tone="paper">Page 04 / 62</Micro>
-                </div>
-
-                {/* the reading pass — a quiet rule, not a sci-fi scanner */}
-                <div
-                  aria-hidden
+                  {block.head}
+                </h3>
+              ) : (
+                <p
+                  key={bi}
                   style={{
-                    position: "absolute",
-                    left: 0,
-                    right: 0,
-                    top: `${20 + map(run, 0, 1, 0, 58)}%`,
-                    height: 26,
-                    background: `linear-gradient(to bottom, rgba(79,99,255,0) 0%, rgba(79,99,255,0.05) 60%, rgba(79,99,255,0.14) 100%)`,
-                    borderBottom: `1px solid ${c.blue}`,
-                    opacity: run > 0 && run < 1 ? 0.75 : 0,
-                    transition: "opacity 0.4s linear",
+                    fontFamily: font.serif,
+                    fontSize: "clamp(0.88rem, 1.06vw, 1.02rem)",
+                    lineHeight: 1.82,
+                    color: c.onLight,
+                    textAlign: "justify",
+                    margin: "0 0 12px",
                   }}
-                />
-
-                <div style={{ position: "relative", zIndex: 2 }}>
-                  {doc.map((block, bi) => {
-                    if (block.kind === "rule")
-                      return (
-                        <div
-                          key={bi}
-                          style={{ height: 1, background: c.hairLight, margin: "0 0 18px", opacity: 0.8 }}
+                >
+                  {block.text!.map((part, pi) =>
+                    typeof part === "string" ? (
+                      <span key={pi}>{part}</span>
+                    ) : (
+                      <span
+                        key={pi}
+                        className={`d-lift-${part.lift}`}
+                        style={{ position: "relative", padding: "1px 2px", margin: "0 -2px" }}
+                      >
+                        {part.t}
+                        <span
+                          aria-hidden
+                          className={`d-mark d-mark-${part.lift}`}
+                          style={{
+                            position: "absolute",
+                            left: 0,
+                            right: 0,
+                            bottom: -1,
+                            height: 1,
+                            background: part.lift === 6 ? c.brass : c.blue,
+                            transform: "scaleX(0)",
+                            transformOrigin: "left",
+                          }}
                         />
-                      );
+                      </span>
+                    )
+                  )}
+                </p>
+              )
+            )}
+          </div>
 
-                    const style: React.CSSProperties =
-                      block.kind === "title"
-                        ? {
-                            fontFamily: font.sans,
-                            fontSize: "clamp(0.82rem, 1.05vw, 1rem)",
-                            fontWeight: 600,
-                            letterSpacing: "0.02em",
-                            marginBottom: 12,
-                          }
-                        : block.kind === "head"
-                        ? {
-                            ...micro,
-                            fontSize: 9.5,
-                            color: c.onLightFaint,
-                            margin: "20px 0 8px",
-                            borderTop: `1px solid ${c.hairLightSoft}`,
-                            paddingTop: 10,
-                          }
-                        : block.kind === "meta"
-                        ? { fontFamily: font.mono, fontSize: 11.5, lineHeight: 1.95, color: c.onLightMuted }
-                        : block.kind === "note"
-                        ? { fontFamily: font.serif, fontSize: 12.5, lineHeight: 1.7, color: c.onLightFaint, marginTop: 14 }
-                        : {
-                            fontFamily: font.serif,
-                            fontSize: "clamp(0.86rem, 1.05vw, 0.97rem)",
-                            lineHeight: 1.78,
-                            color: c.onLight,
-                            margin: "0 0 4px",
-                            textAlign: "justify" as const,
-                          };
-
-                    return (
-                      <div key={bi} style={style}>
-                        {block.parts.map((part, pi) => {
-                          if (typeof part === "string") return <span key={pi}>{part}</span>;
-                          const local = step - part.h;
-                          const lit = local > 0;
-                          const held = local > 0.9;
-                          const f = fields[part.h];
-                          const tint =
-                            f?.tone === "change" ? c.brass : f?.tone === "aurevia" ? c.blue : c.blue;
-                          return (
-                            <span
-                              key={pi}
-                              style={{
-                                position: "relative",
-                                padding: "1px 3px",
-                                margin: "0 -3px",
-                                color: lit ? c.onLight : "inherit",
-                                background: lit
-                                  ? held
-                                    ? f?.tone === "change"
-                                      ? "rgba(156,106,58,0.11)"
-                                      : "rgba(79,99,255,0.09)"
-                                    : "rgba(79,99,255,0.2)"
-                                  : "transparent",
-                                boxShadow: held ? `inset 0 -1px 0 ${tint}` : "none",
-                                transition: "background-color 0.35s linear, box-shadow 0.35s linear",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {part.t}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
+          {/* ---------------- the record it becomes ---------------- */}
+          <div className="d-record" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {fields.map((f, i) => (
+              <div
+                key={f.key}
+                className={`d-field d-field-${i}`}
+                style={{
+                  opacity: 0,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  padding: "10px 0",
+                  borderBottom: `1px solid ${c.hairLight}`,
+                }}
+              >
+                <span style={{ ...micro, color: c.onLightMuted }}>{f.key}</span>
+                <span
+                  style={{
+                    fontFamily: font.mono,
+                    fontSize: "clamp(0.78rem, 0.95vw, 0.9rem)",
+                    letterSpacing: "0.02em",
+                    color: f.tone === "blue" ? c.blue : f.tone === "copper" ? c.brass : c.onLight,
+                  }}
+                >
+                  {f.value}
+                </span>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/* ---------- the structured record ---------- */}
+        {/* ---------------- and then becomes the product ---------------- */}
+        <div
+          className="d-product"
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0,
+            background: c.ink,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: `clamp(96px, 13vh, 140px) ${gutter} clamp(48px, 8vh, 90px)`,
+          }}
+        >
+          <div style={{ maxWidth: shell, margin: "0 auto", width: "100%" }}>
+            <h2
+              className="d-title"
+              style={{ ...statement(1.4, 2.6), color: c.onDark, opacity: 0, margin: "0 0 clamp(20px, 3vh, 34px)" }}
+            >
+              DOCUMENT AI
+            </h2>
             <div
               style={{
-                border: `1px solid ${c.hairLight}`,
-                background: "#FFFFFF",
-                display: "flex",
-                flexDirection: "column",
-                boxShadow: "0 26px 60px -50px rgba(10,11,13,0.4)",
+                height: "min(58vh, 520px)",
+                boxShadow: "0 60px 110px -60px rgba(0,0,0,0.9)",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "13px 16px",
-                  borderBottom: `1px solid ${c.hairLightSoft}`,
-                  background: c.bone,
-                }}
-              >
-                <Micro tone="paper" color={c.onLight}>
-                  Structured output
-                </Micro>
-                <span style={{ ...micro, color: done ? meaning.stable : c.blue }}>
-                  {Math.min(STEPS, Math.floor(step))} / {STEPS} fields
-                </span>
-              </div>
-
-              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                {fields.map((f, i) => {
-                  const local = step - i;
-                  const arrived = local > 0.55;
-                  const o = map(local, 0.35, 0.9, 0, 1);
-                  const valueColor =
-                    f.tone === "change" ? c.brass : f.tone === "aurevia" ? c.blue : c.onLight;
-                  return (
-                    <div
-                      key={f.key}
-                      className="rowlift"
-                      style={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        justifyContent: "space-between",
-                        gap: 14,
-                        padding: "14px 16px",
-                        borderBottom: `1px solid ${c.hairLightSoft}`,
-                        borderLeft: `2px solid ${arrived ? (f.tone === "change" ? c.brass : c.blue) : "transparent"}`,
-                        opacity: 0.25 + o * 0.75,
-                        transform: `translateX(${(1 - o) * 14}px)`,
-                        transition: "transform 0.25s linear, opacity 0.25s linear, border-color 0.4s linear",
-                      }}
-                    >
-                      <span style={{ ...micro, color: arrived ? c.onLightMuted : c.onLightFaint }}>{f.key}</span>
-                      <span
-                        style={{
-                          fontFamily: font.mono,
-                          fontSize: 12,
-                          textAlign: "right",
-                          color: arrived ? valueColor : c.onLight,
-                          opacity: arrived ? 1 : 0,
-                          transition: "opacity 0.3s linear",
-                        }}
-                      >
-                        {f.value}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div
-                style={{
-                  padding: "13px 16px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 10,
-                  background: c.bone,
-                  borderTop: `1px solid ${c.hairLightSoft}`,
-                }}
-              >
-                <Ticker
-                  tone="paper"
-                  active={!done}
-                  color={done ? meaning.stable : c.blue}
-                  state={done ? "structured" : "extracting"}
-                />
-                <Micro tone="paper">reviewed by a person</Micro>
-              </div>
+              <DocumentAIProductPreview focus="fields" />
             </div>
-          </div>
-
-          {/* the thread arrives to do its work */}
-          <div style={{ marginTop: "clamp(10px, 2vh, 22px)" }}>
-            <Thread role="extract" tone="light" height={52} annotate />
-          </div>
-
-          {/* ---------- the three verbs ---------- */}
-          <div
-            style={{
-              marginTop: "clamp(18px, 3vh, 36px)",
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "baseline",
-              gap: "clamp(14px, 3vw, 44px)",
-            }}
-          >
-            {["UPLOAD.", "UNDERSTAND.", "COMPARE."].map((s, i) => {
-              const on = run > i * 0.33;
-              return (
-                <span
-                  key={s}
-                  style={{
-                    ...statement(1.1, 2),
-                    color: on ? c.onLight : c.onLightFaint,
-                    transition: "color 0.6s linear",
-                  }}
-                >
-                  {s}
-                </span>
-              );
-            })}
-            <span style={{ marginLeft: "auto" }} className="hide-md">
-              <Act href="#workspace" tone="paper">
-                View the system
-              </Act>
-            </span>
+            <p style={{ ...micro, color: c.onDarkFaint, marginTop: 14 }}>
+              Illustrative interface · example data
+            </p>
           </div>
         </div>
       </div>

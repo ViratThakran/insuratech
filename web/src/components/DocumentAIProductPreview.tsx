@@ -223,13 +223,14 @@ export function DocumentAIProductPreview({ focus = "overview" }: { focus?: Produ
             display: "flex",
             flexDirection: "column",
             background: "#fff",
+            overflowX: "auto",
             ...panel(focus === "documents" || focus === "insights", focus),
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "minmax(0,1fr) 88px 52px 96px 84px",
+              gridTemplateColumns: "minmax(200px,1fr) 88px 52px 96px 84px",
               gap: 8,
               padding: "9px 14px",
               borderBottom: `1px solid ${c.hairLight}`,
@@ -251,7 +252,7 @@ export function DocumentAIProductPreview({ focus = "overview" }: { focus?: Produ
                 className="rowlift"
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(0,1fr) 88px 52px 96px 84px",
+                  gridTemplateColumns: "minmax(200px,1fr) 88px 52px 96px 84px",
                   gap: 8,
                   padding: "11px 14px",
                   borderBottom: `1px solid ${c.hairLightSoft}`,

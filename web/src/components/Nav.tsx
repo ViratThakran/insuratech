@@ -3,16 +3,14 @@ import { c, font, gutter, micro, shell } from "../theme";
 import { useActiveScene, useScrollY } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
- * NAVIGATION — minimal, tone-adaptive, with a scene indicator that    *
- * crossfades rather than snapping.                                     *
+ * NAVIGATION — minimal and tone-adaptive. It inverts itself against    *
+ * whichever scene owns the top of the viewport, and says nothing else. *
  * ------------------------------------------------------------------ */
 
 const links: [string, string][] = [
-  ["Solutions", "#solutions"],
   ["Document AI", "#document-ai"],
   ["Risk", "#risk"],
-  ["Voice", "#voice"],
-  ["Platform", "#platform"],
+  ["Intelligence", "#intelligence"],
 ];
 
 export function Mark({ fg }: { fg: string }) {
@@ -39,12 +37,11 @@ export function Nav() {
 
   const dark = scene.tone === "dark" || scene.tone === "charcoal";
   const fg = dark ? c.onDark : c.onLight;
-  const faint = dark ? c.onDarkFaint : c.onLightFaint;
   const veil = y > 40 ? (dark ? "rgba(10,11,13,0.66)" : "rgba(241,238,229,0.74)") : "transparent";
 
   return (
     <>
-      <a className="skip" href="#information">
+      <a className="skip" href="#world">
         Skip to content
       </a>
 
@@ -72,26 +69,9 @@ export function Nav() {
             gap: 26,
           }}
         >
-          <a href="#opening" aria-label="Aurevia — home">
+          <a href="#world" aria-label="Aurevia — home">
             <Mark fg={fg} />
           </a>
-
-          {/* where the visitor is standing */}
-          <span
-            className="hide-md"
-            style={{ display: "inline-flex", gap: 12, alignItems: "center", overflow: "hidden" }}
-          >
-            <span aria-hidden style={{ width: 22, height: 1, background: "currentColor", opacity: 0.45 }} />
-            <span
-              key={scene.id}
-              className="scene-tick"
-              style={{ ...micro, color: faint, whiteSpace: "nowrap" }}
-              aria-live="polite"
-            >
-              {scene.index && scene.index !== "—" ? `${scene.index} — ` : ""}
-              {scene.label}
-            </span>
-          </span>
 
           <div className="hide-md" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 24 }}>
             {links.map(([label, href]) => (
@@ -177,11 +157,8 @@ export function Nav() {
 const footLinks: [string, string][] = [
   ["Document AI", "#document-ai"],
   ["Risk Intelligence", "#risk"],
-  ["Voice AI", "#voice"],
-  ["About", "#layer"],
+  ["Intelligence layer", "#intelligence"],
   ["Contact", "mailto:hello@aurevia.ai"],
-  ["Privacy", "#talk"],
-  ["Terms", "#talk"],
 ];
 
 export function Footer() {

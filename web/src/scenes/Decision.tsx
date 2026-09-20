@@ -1,174 +1,220 @@
-import { useEffect, useRef, useState } from "react";
-import { c, font, gutter, micro, shell, statement } from "../theme";
-import { map, reducedMotion, useScrollY } from "../lib/scroll";
+import { c, font, gutter, maskLine, micro, shell, statement } from "../theme";
+import { Plate } from "../components/Plate";
+import { gsap, useScene } from "../lib/motion";
 
-/* ------------------------------------------------------------------ *
- * THE DECISION — the scene that does not look like a website section. *
- *                                                                     *
- * Black. No heading. Fragments of a real file drift in the dark. Then  *
- * one line. Then the fragments snap into a single column and the       *
- * wordmark appears. It is over in one screen.                          *
- * ------------------------------------------------------------------ */
+/* ==========================================================================
+   07 — HUMAN DECISION
+   ==========================================================================
+   Back to the physical world, and to the person who still has to decide.
+   The signature transition runs once more, compressed: the desk becomes
+   bands, the bands become a single line, the line becomes the invitation.
+   End credits.
+   ========================================================================== */
 
-const fragments = [
-  { t: "PROPERTY DAMAGE", x: 12, y: 14 },
-  { t: "₹65,00,00,000", x: 68, y: 9 },
-  { t: "EXCESS ₹5,00,000", x: 34, y: 26 },
-  { t: "FLOOD SUB-LIMIT", x: 78, y: 31 },
-  { t: "CL-118", x: 8, y: 38 },
-  { t: "SCHEDULE OF ASSETS", x: 52, y: 44 },
-  { t: "3 SITES", x: 24, y: 55 },
-  { t: "CLAIMS 2023–25", x: 72, y: 58 },
-  { t: "ENDORSEMENT 03", x: 14, y: 68 },
-  { t: "01 JAN 2027", x: 60, y: 74 },
-  { t: "BUSINESS INTERRUPTION", x: 30, y: 84 },
-  { t: "SIGNED", x: 84, y: 88 },
-];
+const BANDS = 7;
 
 export function Decision() {
-  const ref = useRef<HTMLElement>(null);
-  const y = useScrollY();
-  const [box, setBox] = useState({ top: 0, height: 1 });
+  const ref = useScene<HTMLElement>(({ root, reduced }) => {
+    /* GSAP parses the inline `translateY(108%)` React renders as `y: "108%"`,
+       which is a *different* property from yPercent — the reveal has to zero
+       both or it animates against an offset that never goes away. */
+    const lines = ".h-say > span";
 
-  useEffect(() => {
-    const measure = () => {
-      const el = ref.current;
-      if (!el) return;
-      setBox({ top: el.offsetTop, height: el.offsetHeight });
-    };
-    measure();
-    window.addEventListener("resize", measure);
-    const t = setTimeout(measure, 400);
-    return () => {
-      window.removeEventListener("resize", measure);
-      clearTimeout(t);
-    };
-  }, []);
+    if (reduced) {
+      /* no scrubbing to drive the reveal, so the scene shows its payoff frame
+         and gives back the scroll length it no longer needs */
+      gsap.set(root, { height: "100vh" });
+      gsap.set(lines, { y: 0, yPercent: 0 });
+      gsap.set(".h-band", { opacity: 0 });
+      gsap.set(".h-veil", { opacity: 1 });
+      gsap.set(".h-signal", { width: "72%" });
+      gsap.set(".h-dot", { opacity: 1, scale: 1 });
+      gsap.set(".h-cta", { opacity: 1, y: 0 });
+      return;
+    }
 
-  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-  const travel = Math.max(1, box.height - vh);
-  const p = reducedMotion() ? 0.8 : Math.min(1, Math.max(0, (y - box.top) / travel));
+    gsap.set(lines, { y: 0, yPercent: 108 });
 
-  const drift = map(p, 0, 0.42, 0, 1);      /* fragments arrive */
-  const line = map(p, 0.34, 0.5, 0, 1);      /* the sentence */
-  const snap = map(p, 0.56, 0.74, 0, 1);     /* everything reorganises */
-  const mark = map(p, 0.76, 0.92, 0, 1);     /* AUREVIA */
+    const tl = gsap.timeline({
+      scrollTrigger: { trigger: root, start: "top top", end: "bottom bottom", scrub: 0.6 },
+    });
+
+    /* the desk, held */
+    tl.fromTo(".h-frame", { scale: 1.06 }, { scale: 1, duration: 2, ease: "none" }, 0)
+      .fromTo(".h-note", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6 }, 0.5)
+      /* Aurevia arrives as a mark on the page, not as a takeover */
+      .fromTo(".h-mark", { scaleX: 0 }, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 1.2)
+      .fromTo(".h-flag", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 1.5)
+      /* the same shear as the opening — the loop closes */
+      .to(".h-note, .h-flag", { opacity: 0, duration: 0.5 }, 2.2)
+      .to(
+        ".h-band",
+        { xPercent: (i: number) => (i % 2 ? 1 : -1) * (7 + (i % 3) * 6), duration: 1.1, ease: "power2.inOut" },
+        2.3
+      )
+      .to(".h-band", { opacity: 0, duration: 0.8, stagger: 0.07 }, 2.7)
+      .to(".h-veil", { opacity: 1, duration: 0.8 }, 2.8)
+      /* one line crosses, and stops */
+      .fromTo(".h-signal", { width: "0%" }, { width: "72%", duration: 1.1, ease: "power2.inOut" }, 3.2)
+      .fromTo(".h-dot", { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 4.1)
+      /* end credits */
+      .to(".h-say > span", { yPercent: 0, duration: 0.7, stagger: 0.12, ease: "power3.out" }, 4.2)
+      .fromTo(".h-cta", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6 }, 4.9);
+  });
 
   return (
     <section
       ref={ref}
-      id="decision"
+      id="talk"
       data-scene
       data-tone="dark"
-      data-label="The decision"
-      data-index="—"
       className="mat"
-      style={{ position: "relative", background: c.ink, color: c.onDark, height: "260vh" }}
+      style={{ position: "relative", background: c.ink, height: "480vh" }}
     >
       <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
-        {/* the file, scattered */}
-        <div aria-hidden style={{ position: "absolute", inset: 0 }}>
-          {fragments.map((f, i) => {
-            const appear = map(drift, (i % 6) * 0.1, 0.4 + (i % 6) * 0.1, 0, 1);
-            /* on snap they align into one column, centre-left, and fade */
-            const colX = 34;
-            const colY = 20 + i * 4.6;
-            const x = f.x + (colX - f.x) * snap;
-            const yy = f.y + (colY - f.y) * snap;
-            return (
-              <span
-                key={f.t}
-                style={{
-                  position: "absolute",
-                  left: `${x}%`,
-                  top: `${yy}%`,
-                  ...micro,
-                  fontSize: 9.5,
-                  whiteSpace: "nowrap",
-                  color: snap > 0.7 && i === 5 ? c.blueLift : c.onDarkFaint,
-                  opacity: appear * (1 - mark * 0.72),
-                  transform: `translateY(${(1 - appear) * 10}px)`,
-                  transition: "color 0.7s linear",
-                }}
-              >
-                {f.t}
-              </span>
-            );
-          })}
+        {/* ---------- the desk ---------- */}
+        <div className="h-frame" style={{ position: "absolute", inset: 0 }}>
+          {Array.from({ length: BANDS }, (_, i) => (
+            <div
+              key={i}
+              className="h-band"
+              style={{
+                position: "absolute",
+                inset: 0,
+                clipPath: `inset(${(i * 100) / BANDS}% 0% ${100 - ((i + 1) * 100) / BANDS}% 0%)`,
+                willChange: "transform, opacity",
+              }}
+            >
+              <Plate asset="human" position="52% 48%" silent={i !== 0} style={{ position: "absolute", inset: 0 }} />
+            </div>
+          ))}
         </div>
 
-        {/* the line */}
+        {/* what the person wrote, and what Aurevia had already found */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: `0 ${gutter}`,
-          }}
-        >
-          <p
-            style={{
-              fontFamily: font.serif,
-              fontStyle: "italic",
-              fontSize: "clamp(1.15rem, 2.1vw, 2rem)",
-              lineHeight: 1.35,
-              textAlign: "center",
-              maxWidth: "30ch",
-              margin: 0,
-              color: c.onDark,
-              opacity: line * (1 - mark),
-              transform: `translateY(${(1 - line) * 14}px)`,
-            }}
-          >
-            Somewhere inside all of this is the decision.
-          </p>
-        </div>
-
-        {/* the wordmark, alone */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <span
-            style={{
-              ...statement(2, 5.4),
-              letterSpacing: "0.16em",
-              fontWeight: 600,
-              color: c.onDark,
-              opacity: mark,
-              transform: `scale(${0.97 + mark * 0.03})`,
-            }}
-          >
-            AUREVIA
-          </span>
-        </div>
-
-        <div
-          style={{
-            position: "absolute",
-            bottom: "clamp(22px, 4vh, 44px)",
-            left: 0,
-            right: 0,
             maxWidth: shell,
             margin: "0 auto",
             padding: `0 ${gutter}`,
             display: "flex",
-            justifyContent: "space-between",
+            alignItems: "flex-end",
+            paddingBottom: "clamp(72px, 14vh, 160px)",
           }}
         >
-          <span style={{ ...micro, color: c.onDarkFaint }}>
-            {snap > 0.6 ? "one record" : "one file · many parts"}
-          </span>
-          <span style={{ ...micro, color: mark > 0.5 ? c.blueLift : c.onDarkFaint }}>
-            {mark > 0.5 ? "intelligence layer" : ""}
-          </span>
+          <div style={{ maxWidth: "34ch" }}>
+            <p
+              className="h-note"
+              style={{
+                position: "relative",
+                fontFamily: font.serif,
+                fontStyle: "italic",
+                fontSize: "clamp(1rem, 1.5vw, 1.35rem)",
+                lineHeight: 1.5,
+                color: c.onDark,
+                margin: 0,
+                opacity: 0,
+                textShadow: "0 1px 18px rgba(8,10,13,0.85)",
+              }}
+            >
+              Limit moved — check the flood sub-limit before this goes to the client.
+              <span
+                aria-hidden
+                className="h-mark"
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: "18%",
+                  bottom: -6,
+                  height: 1,
+                  background: c.brassLift,
+                  transform: "scaleX(0)",
+                  transformOrigin: "left",
+                }}
+              />
+            </p>
+            <span className="h-flag" style={{ ...micro, color: c.brassLift, opacity: 0, display: "block", marginTop: 16 }}>
+              Aurevia flagged this on the first pass
+            </span>
+          </div>
+        </div>
+
+        {/* ---------- end credits ---------- */}
+        <div className="h-veil" aria-hidden style={{ position: "absolute", inset: 0, background: c.ink, opacity: 0 }} />
+
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            maxWidth: shell,
+            margin: "0 auto",
+            padding: `0 ${gutter}`,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: "clamp(26px, 5vh, 56px)",
+            pointerEvents: "none",
+          }}
+        >
+          {/* the signal crosses the screen and stops */}
+          <div style={{ position: "relative", height: 10 }}>
+            <span
+              aria-hidden
+              className="h-signal"
+              style={{ position: "absolute", left: 0, top: 4, height: 1, width: 0, background: c.blueLift }}
+            />
+            <span
+              aria-hidden
+              className="h-dot"
+              style={{
+                position: "absolute",
+                left: "72%",
+                top: 0,
+                width: 9,
+                height: 9,
+                borderRadius: "50%",
+                background: c.blue,
+                boxShadow: "0 0 0 8px rgba(82,103,255,0.10)",
+                opacity: 0,
+              }}
+            />
+          </div>
+
+          <h2 style={{ ...statement(2.4, 6), color: c.onDark, margin: 0 }}>
+            <span className="h-say" style={maskLine}>
+              <span style={{ display: "block", transform: "translateY(108%)" }}>LET'S BUILD</span>
+            </span>
+            <span className="h-say" style={maskLine}>
+              <span style={{ display: "block", transform: "translateY(108%)" }}>THE FUTURE</span>
+            </span>
+            <span className="h-say" style={maskLine}>
+              <span
+                style={{
+                  display: "block",
+                  transform: "translateY(108%)",
+                  fontFamily: font.serif,
+                  fontStyle: "italic",
+                  fontWeight: 400,
+                  fontSize: "0.46em",
+                  letterSpacing: "-0.01em",
+                  color: c.onDarkMuted,
+                  paddingTop: "0.3em",
+                }}
+              >
+                of insurance.
+              </span>
+            </span>
+          </h2>
+
+          <div className="h-cta" style={{ opacity: 0, pointerEvents: "auto" }}>
+            <a href="mailto:hello@aurevia.ai" className="act-fill">
+              <span>Talk to Aurevia</span>
+              <span className="arw" aria-hidden>
+                →
+              </span>
+            </a>
+          </div>
         </div>
       </div>
     </section>

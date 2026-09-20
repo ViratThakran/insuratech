@@ -439,6 +439,50 @@ h3 {
   scrollbar-width: thin;
 }
 
+/* ------------------------------------------------------------------ *
+ * THE RISK FIELD — the curves live in an SVG viewBox so the geometry  *
+ * cannot drift, but every label is real HTML type, placed against the *
+ * same percentages the viewBox uses. Inside the SVG the type would    *
+ * scale with the drawing and become unreadable on a phone.            *
+ * ------------------------------------------------------------------ */
+.r-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(170px, 20vw, 260px);
+  gap: clamp(14px, 2.4vw, 34px);
+  align-items: stretch;
+}
+.r-legend {
+  position: relative;
+}
+.r-legend > * {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+/* the tie linking an old value to a new one needs a gutter to live in;
+   under this width there is none, and it reads as a stray dash */
+@media (max-width: 760px) {
+  .ch-tie {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .r-field {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .r-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .r-legend > * {
+    position: static;
+    top: auto !important;
+  }
+}
+
 @media (max-width: 1020px) {
   .field-grid {
     grid-template-columns: repeat(6, minmax(0, 1fr)) !important;

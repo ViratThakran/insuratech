@@ -6,10 +6,10 @@
 
 export const c = {
   /* surfaces */
-  ink: "#090B0E",
+  ink: "#080A0D",
   charcoal: "#15171B",
-  bone: "#F2EFE7",
-  paper: "#E7E2D8",
+  bone: "#F1EEE5",
+  paper: "#E6E0D5",
   sheet: "#FBF9F4",
 
   /* strokes */
@@ -19,30 +19,30 @@ export const c = {
   hairDarkSoft: "#191C20",
 
   /* text */
-  onDark: "#F2EFE7",
+  onDark: "#F1EEE5",
   onDarkMuted: "#8F959F",
   onDarkFaint: "#50565F",
-  onLight: "#090B0E",
+  onLight: "#080A0D",
   onLightMuted: "#565B63",
   onLightFaint: "#928C7F",
 
   /* AUREVIA COBALT — the company, intelligence, the active system.
      Never used merely because something is interactive. */
-  blue: "#4F63FF",
+  blue: "#5267FF",
   blueLift: "#7184FF",
   blueSoft: "#6376FF",
 
   /* OXIDIZED COPPER — change, attention, comparison */
-  brass: "#9C6A3A",
+  brass: "#B47A45",
   brassLift: "#B47C45",
   amber: "#B47C45",
 
   /* SOFT SAGE — processed, stable, confirmed */
-  green: "#69856F",
+  green: "#819986",
   greenLift: "#7D9984",
 
   /* MUTED WINE — issue, elevated, exception */
-  red: "#8E4F55",
+  red: "#9D5B63",
   redLift: "#A45D63",
 
   /* voice keeps a trace of its own so the room is not another cobalt scene */
@@ -148,6 +148,16 @@ export const text = (tone: Tone) =>
 
 export const surface = (tone: Tone) =>
   tone === "dark" ? c.ink : tone === "charcoal" ? c.charcoal : tone === "paper" ? c.paper : c.bone;
+
+/** A reveal mask for one line of display type. The padding keeps descenders
+ *  (the g in "intelligence") inside the clip; the negative margin gives the
+ *  space straight back so the line spacing is unchanged. */
+export const maskLine = {
+  display: "block" as const,
+  overflow: "hidden" as const,
+  paddingBottom: "0.14em",
+  marginBottom: "-0.14em",
+};
 
 export const shell = 1320;
 export const gutter = "clamp(20px, 4.4vw, 64px)";
