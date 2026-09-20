@@ -1,4 +1,4 @@
-import { c, font, gutter, micro, shell, statement } from "../theme";
+import { c, font, gutter, meaning, micro, shell, statement } from "../theme";
 import { Act, Annotate, Enter, Explain, Hair, Micro, Statement, State } from "../components/kit";
 import { map, useStageProgress } from "../lib/scroll";
 
@@ -11,7 +11,7 @@ function Morph({ p, phase, dark }: { p: number; phase: "doc-risk" | "risk-voice"
   const t = map(p, 0.15, 0.85, 0, 1);
   const hair = dark ? c.onDarkFaint : c.hairLight;
   const accent = dark ? c.blueLift : c.blue;
-  const warm = dark ? c.amberLift : c.amber;
+  const warm = dark ? c.brassLift : c.brass;
   return (
     <svg viewBox="0 0 520 56" width="100%" aria-hidden style={{ display: "block" }}>
       {Array.from({ length: n }, (_, i) => {
@@ -68,8 +68,8 @@ function Transition({
   const [ref, p] = useStageProgress<HTMLDivElement>({ start: 0.9, end: 0.4 });
   return (
     <div
-      className="grain"
-      data-tone={dark ? "dark" : "light"}
+      className="mat"
+      data-tone={dark ? "dark" : "bone"}
       style={{ position: "relative", background: dark ? c.ink : c.paper }}
     >
     <div
@@ -85,7 +85,7 @@ function Transition({
       }}
       className="cols"
     >
-      <Micro tone={dark ? "dark" : "light"}>{label}</Micro>
+      <Micro tone={dark ? "dark" : "bone"}>{label}</Micro>
       <Morph p={p} phase={phase} dark={dark} />
     </div>
     </div>
@@ -125,7 +125,7 @@ function DocWorld({ p }: { p: number }) {
               color: i === 0 ? c.onLightFaint : c.onLightMuted,
               marginBottom: i === 0 ? 14 : 6,
               background:
-                i === 3 && pull > 0.4 ? "rgba(28,60,214,0.12)" : "transparent",
+                i === 3 && pull > 0.4 ? "rgba(65,85,232,0.13)" : "transparent",
               transition: "background-color 0.6s linear",
             }}
           >
@@ -141,6 +141,7 @@ function DocWorld({ p }: { p: number }) {
           width: "40%",
           border: `1px solid ${c.blue}`,
           background: "#fff",
+          boxShadow: "0 22px 44px -34px rgba(10,11,13,0.4)",
           padding: "14px 16px",
           opacity: pull,
           transform: `translateX(${(1 - pull) * 24}px)`,
@@ -209,7 +210,7 @@ function RiskWorld({ p }: { p: number }) {
               cx={x}
               cy={y}
               r={hot ? 1.5 : 0.9}
-              fill={hot ? c.blueLift : c.onDarkMuted}
+              fill={hot ? c.brassLift : c.onDarkMuted}
               style={{ transition: "fill 0.5s linear" }}
             />
             {hot && (
@@ -218,7 +219,7 @@ function RiskWorld({ p }: { p: number }) {
                 cy={y}
                 r="3.4"
                 fill="none"
-                stroke={c.blueLift}
+                stroke={c.brassLift}
                 strokeWidth="0.3"
                 vectorEffect="non-scaling-stroke"
               />
@@ -226,7 +227,7 @@ function RiskWorld({ p }: { p: number }) {
           </g>
         );
       })}
-      <text x="56" y="33" style={{ ...micro, fontSize: 2.6 }} fill={c.blueLift} opacity={p > 0.45 ? 1 : 0}>
+      <text x="56" y="33" style={{ ...micro, fontSize: 2.6 }} fill={c.brassLift} opacity={p > 0.45 ? 1 : 0}>
         EXPOSURE ↑
       </text>
     </svg>
@@ -244,7 +245,7 @@ function VoiceWorld({ p }: { p: number }) {
         const o = map(active, i * 0.4, 0.45 + i * 0.4, 0, 1);
         return (
           <div key={who} style={{ opacity: o, transform: `translateY(${(1 - o) * 8}px)` }}>
-            <div style={{ ...micro, color: i ? c.amber : c.onLightFaint, marginBottom: 5 }}>{who}</div>
+            <div style={{ ...micro, color: i ? meaning.voice : c.onLightFaint, marginBottom: 5 }}>{who}</div>
             <div style={{ fontFamily: font.serif, fontSize: 15, color: c.onLight }}>{said}</div>
           </div>
         );
@@ -260,7 +261,7 @@ function VoiceWorld({ p }: { p: number }) {
               y={22 - h / 2}
               width="2.4"
               height={h}
-              fill={i % 9 === 0 ? c.amber : c.hairLight}
+              fill={i % 9 === 0 ? meaning.voice : c.hairLight}
             />
           );
         })}
@@ -333,7 +334,7 @@ const worlds: World[] = [
 function WorldBlock({ w }: { w: World }) {
   const [ref, p] = useStageProgress<HTMLDivElement>({ start: 0.95, end: 0.3 });
   const dark = w.tone === "dark";
-  const bg = dark ? c.ink : w.tone === "paper" ? c.paperRaised : c.paper;
+  const bg = dark ? c.charcoal : w.tone === "paper" ? c.paper : c.bone;
   const fg = dark ? c.onDark : c.onLight;
   const muted = dark ? c.onDarkMuted : c.onLightMuted;
   const faint = dark ? c.onDarkFaint : c.onLightFaint;
@@ -342,8 +343,8 @@ function WorldBlock({ w }: { w: World }) {
   return (
     <div
       ref={ref}
-      className="grain"
-      data-tone={dark ? "dark" : "light"}
+      className="mat"
+      data-tone={dark ? "dark" : "bone"}
       style={{ position: "relative", background: bg, color: fg, overflow: "hidden" }}
     >
       {/* oversized world numeral, cropped by the edge */}
@@ -384,7 +385,7 @@ function WorldBlock({ w }: { w: World }) {
               <span style={{ ...micro, color: faint }}>{w.n}</span>
               <span aria-hidden style={{ width: 26, height: 1, background: hair }} />
               <span style={{ ...micro, color: fg }}>{w.name}</span>
-              <State state={w.state} tone={dark ? "dark" : "light"} />
+              <State state={w.state} tone={dark ? "dark" : "bone"} />
             </div>
 
             <h3 style={{ ...statement(1.6, 3.1), color: fg }}>
@@ -395,7 +396,7 @@ function WorldBlock({ w }: { w: World }) {
               ))}
             </h3>
 
-            <Explain tone={dark ? "dark" : "light"} delay={120} style={{ maxWidth: "42ch" }}>
+            <Explain tone={dark ? "dark" : "bone"} delay={120} style={{ maxWidth: "42ch" }}>
               {w.body}
             </Explain>
 
@@ -419,8 +420,8 @@ function WorldBlock({ w }: { w: World }) {
 
             {w.note && (
               <Annotate
-                tone={dark ? "dark" : "light"}
-                color={dark ? c.amberLift : c.amber}
+                tone={dark ? "dark" : "bone"}
+                color={dark ? c.brassLift : c.brass}
                 delay={200}
                 style={{ fontSize: 10 }}
               >
@@ -429,7 +430,7 @@ function WorldBlock({ w }: { w: World }) {
             )}
 
             <div className="fade" style={{ transitionDelay: "240ms" }}>
-              <Act href={w.href} tone={dark ? "dark" : "light"}>
+              <Act href={w.href} tone={dark ? "dark" : "bone"}>
                 {w.cta}
               </Act>
             </div>
@@ -449,14 +450,14 @@ export function Solutions() {
     <section
       id="solutions"
       data-scene
-      data-tone="light"
+      data-tone="bone"
       data-label="Solutions"
       data-index="04"
-      style={{ position: "relative", background: c.paper, color: c.onLight }}
+      style={{ position: "relative", background: c.bone, color: c.onLight }}
     >
       <div
-        className="grain"
-        data-tone="light"
+        className="mat"
+        data-tone="bone"
         style={{ position: "relative", maxWidth: shell, margin: "0 auto", padding: `clamp(100px, 12vw, 170px) ${gutter} 0` }}
       >
         <Enter>

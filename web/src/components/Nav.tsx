@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { c, font, micro, shell, gutter } from "../theme";
+import { c, font, gutter, micro, shell } from "../theme";
 import { useActiveScene, useScrollY } from "../lib/scroll";
 
-const links = [
+/* ------------------------------------------------------------------ *
+ * NAVIGATION — minimal, tone-adaptive, with a scene indicator that    *
+ * crossfades rather than snapping.                                     *
+ * ------------------------------------------------------------------ */
+
+const links: [string, string][] = [
   ["Solutions", "#solutions"],
   ["Document AI", "#document-ai"],
   ["Risk", "#risk"],
@@ -14,18 +19,12 @@ export function Mark({ fg }: { fg: string }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 11 }}>
       <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden style={{ display: "block", overflow: "visible" }}>
-        <rect x="0.5" y="0.5" width="15" height="15" fill="none" stroke={fg} strokeOpacity="0.45" />
+        <rect x="0.5" y="0.5" width="15" height="15" fill="none" stroke={fg} strokeOpacity="0.4" />
         <path d="M1 12 C 6 12, 6 4, 15 4" fill="none" stroke={c.blue} strokeWidth="1.4" />
         <circle cx="8" cy="8" r="2" fill={c.blue} />
       </svg>
       <span
-        style={{
-          fontFamily: font.sans,
-          fontWeight: 700,
-          letterSpacing: "0.3em",
-          fontSize: 12,
-          color: fg,
-        }}
+        style={{ fontFamily: font.sans, fontWeight: 700, letterSpacing: "0.3em", fontSize: 12, color: fg }}
       >
         AUREVIA
       </span>
@@ -38,14 +37,19 @@ export function Nav() {
   const y = useScrollY();
   const [open, setOpen] = useState(false);
 
-  const dark = scene.tone === "dark";
+  const dark = scene.tone === "dark" || scene.tone === "charcoal";
   const fg = dark ? c.onDark : c.onLight;
   const faint = dark ? c.onDarkFaint : c.onLightFaint;
-  const veil = y > 40 ? (dark ? "rgba(10,11,13,0.72)" : "rgba(239,234,224,0.78)") : "transparent";
+  const veil = y > 40 ? (dark ? "rgba(10,11,13,0.66)" : "rgba(241,238,229,0.74)") : "transparent";
 
   return (
     <>
+      <a className="skip" href="#information">
+        Skip to content
+      </a>
+
       <nav
+        aria-label="Primary"
         style={{
           position: "fixed",
           top: 0,
@@ -54,8 +58,8 @@ export function Nav() {
           zIndex: 60,
           color: fg,
           background: veil,
-          backdropFilter: y > 40 ? "blur(12px) saturate(1.1)" : "none",
-          transition: "color 0.6s linear, background-color 0.5s linear",
+          backdropFilter: y > 40 ? "blur(14px) saturate(1.08)" : "none",
+          transition: "color 0.7s linear, background-color 0.5s linear",
         }}
       >
         <div
@@ -72,19 +76,24 @@ export function Nav() {
             <Mark fg={fg} />
           </a>
 
-          {/* which scene the visitor is standing in */}
+          {/* where the visitor is standing */}
           <span
             className="hide-md"
-            style={{ ...micro, color: faint, display: "inline-flex", gap: 10, alignItems: "center" }}
+            style={{ display: "inline-flex", gap: 12, alignItems: "center", overflow: "hidden" }}
           >
-            <span aria-hidden style={{ width: 22, height: 1, background: "currentColor", opacity: 0.6 }} />
-            {scene.index} {scene.label && `— ${scene.label}`}
+            <span aria-hidden style={{ width: 22, height: 1, background: "currentColor", opacity: 0.45 }} />
+            <span
+              key={scene.id}
+              className="scene-tick"
+              style={{ ...micro, color: faint, whiteSpace: "nowrap" }}
+              aria-live="polite"
+            >
+              {scene.index}
+              {scene.label ? ` — ${scene.label}` : ""}
+            </span>
           </span>
 
-          <div
-            className="hide-md"
-            style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 24 }}
-          >
+          <div className="hide-md" style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 24 }}>
             {links.map(([label, href]) => (
               <a
                 key={label}
@@ -104,7 +113,7 @@ export function Nav() {
           <button
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
-            aria-label="Menu"
+            aria-label={open ? "Close menu" : "Open menu"}
             className="hide-lg"
             style={{
               marginLeft: "auto",
@@ -135,7 +144,7 @@ export function Nav() {
             gap: 4,
           }}
         >
-          {[...links, ["Talk to us", "#talk"]].map(([label, href], i) => (
+          {[...links, ["Talk to us", "#talk"] as [string, string]].map(([label, href], i) => (
             <a
               key={label}
               href={href}
@@ -144,7 +153,7 @@ export function Nav() {
                 fontFamily: font.sans,
                 fontSize: "clamp(1.6rem, 9vw, 2.4rem)",
                 fontWeight: 600,
-                letterSpacing: "-0.03em",
+                letterSpacing: "-0.035em",
                 padding: "14px 0",
                 borderBottom: `1px solid ${c.hairDark}`,
                 display: "flex",
@@ -162,47 +171,112 @@ export function Nav() {
   );
 }
 
+/* ------------------------------------------------------------------ *
+ * FOOTER — a continuation of the art direction, not an afterthought.  *
+ * ------------------------------------------------------------------ */
+const groups: { title: string; items: [string, string][] }[] = [
+  {
+    title: "Solutions",
+    items: [
+      ["Document AI", "#document-ai"],
+      ["Risk Intelligence", "#risk"],
+      ["Voice AI", "#voice"],
+      ["The platform", "#platform"],
+    ],
+  },
+  {
+    title: "Company",
+    items: [
+      ["About", "#layer"],
+      ["Contact", "mailto:hello@aurevia.ai"],
+    ],
+  },
+  {
+    title: "Legal",
+    items: [
+      ["Privacy", "#talk"],
+      ["Terms", "#talk"],
+    ],
+  },
+];
+
 export function Footer() {
   return (
     <footer
+      className="mat"
+      data-tone="dark"
       style={{
+        position: "relative",
         background: c.ink,
         color: c.onDarkMuted,
         borderTop: `1px solid ${c.hairDark}`,
-        position: "relative",
         zIndex: 2,
       }}
     >
       <div
         style={{
+          position: "relative",
+          zIndex: 2,
           maxWidth: shell,
           margin: "0 auto",
-          padding: `44px ${gutter}`,
-          display: "grid",
-          gridTemplateColumns: "minmax(0, 4fr) minmax(0, 3fr) minmax(0, 5fr)",
-          gap: "clamp(20px, 3vw, 48px)",
-          alignItems: "start",
+          padding: `clamp(48px, 7vw, 84px) ${gutter} 26px`,
         }}
-        className="cols"
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Mark fg={c.onDark} />
-          <span style={{ ...micro, color: c.onDarkFaint }}>AI &amp; Intelligence for Insurance</span>
-        </div>
+        <div
+          className="cols"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 5fr) repeat(3, minmax(0, 2.4fr))",
+            gap: "clamp(28px, 4vw, 56px)",
+            alignItems: "start",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <Mark fg={c.onDark} />
+            <span style={{ ...micro, color: c.onDarkFaint }}>AI &amp; Intelligence for Insurance</span>
+            <span
+              style={{
+                fontFamily: font.serif,
+                fontStyle: "italic",
+                fontSize: 15,
+                color: c.onDarkMuted,
+                maxWidth: "24ch",
+              }}
+            >
+              We turn business risk into intelligence.
+            </span>
+          </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {links.map(([label, href]) => (
-            <a key={label} href={href} className="nav-item" style={{ ...micro, color: c.onDarkMuted }}>
-              {label}
-            </a>
+          {groups.map((g) => (
+            <div key={g.title} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <span style={{ ...micro, color: c.onDarkFaint }}>{g.title}</span>
+              {g.items.map(([label, href]) => (
+                <a key={label} href={href} className="nav-item" style={{ ...micro, color: c.onDark, opacity: 0.72 }}>
+                  {label}
+                </a>
+              ))}
+            </div>
           ))}
         </div>
 
-        <p style={{ ...micro, color: c.onDarkFaint, lineHeight: 2, maxWidth: "52ch", margin: 0 }}>
-          Aurevia is a technology company building AI solutions for the insurance ecosystem. It is
-          not an insurer, broker or reinsurer. Documents, dashboards, values and conversations shown
-          on this site are fictional illustrations, not customer data or performance claims.
-        </p>
+        <div
+          style={{
+            marginTop: "clamp(34px, 5vw, 60px)",
+            paddingTop: 18,
+            borderTop: `1px solid ${c.hairDark}`,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "12px 28px",
+            alignItems: "baseline",
+          }}
+        >
+          <span style={{ ...micro, color: c.onDarkFaint }}>Aurevia / intelligence system</span>
+          <span style={{ ...micro, color: c.onDarkFaint, marginLeft: "auto", maxWidth: "62ch", lineHeight: 1.9 }}>
+            Aurevia is a technology company building AI solutions for the insurance ecosystem. It is
+            not an insurer, broker or reinsurer. Documents, interfaces, values and conversations
+            shown here are fictional illustrations — not customer data or performance claims.
+          </span>
+        </div>
       </div>
     </footer>
   );

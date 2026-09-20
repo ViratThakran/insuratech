@@ -1,19 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { c, font, gutter, micro, shell, statement } from "../theme";
-import { Act, Enter, Explain, Micro } from "../components/kit";
+import { Act, ActFill, Enter, Explain, Micro } from "../components/kit";
 import { map, reducedMotion, useScrollY } from "../lib/scroll";
 
-/* Everything the visitor has seen dissolves. One signal remains, and
-   travels toward the invitation. */
+/* ------------------------------------------------------------------ *
+ * OUTRO — TALK TO US                                                  *
+ * Everything the visitor has seen dissolves. One blue signal crosses   *
+ * the screen, lands as a single point, and the invitation appears.     *
+ * ------------------------------------------------------------------ */
+
 const residue = [
-  { t: "POLICY WORDING", x: 8, y: 18 },
-  { t: "₹65,00,00,000", x: 68, y: 12 },
-  { t: "EXP-03 ABOVE THRESHOLD", x: 26, y: 72 },
-  { t: "01 JAN 2026 → 01 JAN 2027", x: 58, y: 80 },
-  { t: "ENDORSEMENT 03", x: 80, y: 44 },
-  { t: "RENEWAL CALL", x: 12, y: 46 },
-  { t: "CL-118", x: 44, y: 30 },
-  { t: "STRUCTURED", x: 36, y: 56 },
+  { t: "POLICY WORDING", x: 8, y: 16 },
+  { t: "₹65,00,00,000", x: 66, y: 11 },
+  { t: "EXP-03 ABOVE THRESHOLD", x: 24, y: 70 },
+  { t: "01 JAN 2026 → 01 JAN 2027", x: 56, y: 79 },
+  { t: "ENDORSEMENT 03", x: 79, y: 42 },
+  { t: "RENEWAL CALL", x: 11, y: 44 },
+  { t: "CL-118", x: 43, y: 28 },
+  { t: "STRUCTURED", x: 34, y: 55 },
 ];
 
 export function Outro() {
@@ -40,9 +44,14 @@ export function Outro() {
   const travel = Math.max(1, box.height - vh);
   const p = reducedMotion() ? 1 : Math.min(1, Math.max(0, (y - box.top) / travel));
 
-  const dissolve = map(p, 0.02, 0.4, 0, 1);
-  const signal = map(p, 0.24, 0.7, 0, 1);
+  const dissolve = map(p, 0.02, 0.38, 0, 1);
+  const signal = map(p, 0.2, 0.62, 0, 1);
+  const land = map(p, 0.58, 0.78, 0, 1);
   const words = map(p, 0.3, 0.7, 0, 1);
+
+  /* the signal travels, then settles onto the CTA anchor */
+  const signalX = 6 + signal * 74;
+  const signalY = 50 - land * 14;
 
   return (
     <section
@@ -52,8 +61,8 @@ export function Outro() {
       data-tone="dark"
       data-label="Talk to us"
       data-index="END"
-      className="grain"
-      style={{ position: "relative", background: c.ink, color: c.onDark, height: "260vh" }}
+      className="mat"
+      style={{ position: "relative", background: c.ink, color: c.onDark, height: "270vh" }}
     >
       <div
         style={{
@@ -92,7 +101,7 @@ export function Outro() {
           })}
         </div>
 
-        {/* the last signal, travelling toward the invitation */}
+        {/* the last signal */}
         <div
           aria-hidden
           style={{
@@ -101,25 +110,26 @@ export function Outro() {
             right: 0,
             top: "50%",
             height: 1,
-            background: `linear-gradient(90deg, transparent, ${c.hairDark} 20%, ${c.hairDark} 80%, transparent)`,
-            opacity: signal * 0.8,
+            background: `linear-gradient(90deg, transparent, ${c.hairDark} 18%, ${c.hairDark} 78%, transparent)`,
+            opacity: signal * 0.9 * (1 - land),
           }}
         />
         <span
           aria-hidden
+          className={land > 0.9 ? "breathe" : undefined}
           style={{
             position: "absolute",
-            top: "50%",
-            left: `${8 + signal * 76}%`,
+            top: `${signalY}%`,
+            left: `${signalX}%`,
             width: 10,
             height: 10,
             marginTop: -5,
             borderRadius: "50%",
             background: c.blue,
-            boxShadow: `0 0 0 ${4 + signal * 10}px rgba(28,60,214,0.12)`,
+            boxShadow: `0 0 0 ${4 + signal * 12}px rgba(65,85,232,0.10)`,
             opacity: signal,
+            transition: "top 0.2s linear",
           }}
-          className={signal > 0.9 ? "breathe" : undefined}
         />
 
         <div
@@ -136,11 +146,12 @@ export function Outro() {
             <Micro tone="dark">Talk to us</Micro>
 
             <h2 style={{ ...statement(2.3, 6), color: c.onDark, opacity: 0.55 + words * 0.45 }}>
-              {["LET'S BUILD", "THE FUTURE"].map((l, i) => (
-                <span className="mask" key={l}>
-                  <span style={{ transitionDelay: `${i * 90}ms` }}>{l}</span>
-                </span>
-              ))}
+              <span className="mask">
+                <span>LET'S BUILD</span>
+              </span>
+              <span className="mask">
+                <span style={{ transitionDelay: "90ms" }}>THE FUTURE</span>
+              </span>
               <span className="mask">
                 <span
                   style={{
@@ -160,13 +171,18 @@ export function Outro() {
               Explore Aurevia's AI solutions for insurance documents, risk and workflow automation.
             </Explain>
 
+            {/* the one filled action on the page */}
             <div
               className="fade"
-              style={{ display: "flex", flexWrap: "wrap", gap: "clamp(24px, 4vw, 56px)", transitionDelay: "300ms" }}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: "clamp(20px, 4vw, 48px)",
+                transitionDelay: "300ms",
+              }}
             >
-              <Act href="mailto:hello@aurevia.ai" tone="dark" lead>
-                Talk to Aurevia
-              </Act>
+              <ActFill href="mailto:hello@aurevia.ai">Talk to Aurevia</ActFill>
               <Act href="#solutions" tone="dark">
                 Explore solutions
               </Act>

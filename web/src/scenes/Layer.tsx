@@ -24,10 +24,10 @@ export function Layer() {
   const packets = Array.from({ length: 7 }, (_, i) => ((p * 1.35 + i * 0.145) % 1 + 1) % 1);
 
   return (
-    <Scene id="layer" index="03" label="Intelligence layer" tone="dark">
+    <Scene id="layer" index="03" label="Intelligence" tone="dark" grid="rules">
       <div className="cols c-7-5" style={{ alignItems: "end", marginBottom: "clamp(52px, 7vw, 96px)" }}>
         <Enter>
-          <SceneMark index="03" label="Intelligence layer" tone="dark" />
+          <SceneMark index="03" label="Intelligence" tone="dark" />
           <Statement
             tone="dark"
             min={1.9}
@@ -82,7 +82,7 @@ export function Layer() {
           style={{
             position: "relative",
             border: `1px solid ${c.hairDark}`,
-            background: c.inkRaised,
+            background: c.charcoal,
             minHeight: 260,
             display: "flex",
             flexDirection: "column",

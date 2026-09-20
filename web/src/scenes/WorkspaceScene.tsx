@@ -1,10 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { c, gutter, micro, shell } from "../theme";
-import { Enter, Explain, Micro, Statement } from "../components/kit";
-import { Workspace } from "../components/Workspace";
+import { Enter, Explain, Micro, Statement, Ticker } from "../components/kit";
+import { DocumentAIProductPreview, type ProductFocus } from "../components/DocumentAIProductPreview";
 import { map, reducedMotion, useScrollY } from "../lib/scroll";
 
-/* The product arrives: small → large → full-bleed → camera pushes in. */
+/* ------------------------------------------------------------------ *
+ * SCENE 06 — WORKFLOW / THE WORKSPACE                                 *
+ * The product arrives, then the scene walks the visitor through it:    *
+ * documents → comparison → fields → insights. Restrained camera.       *
+ * ------------------------------------------------------------------ */
+
+const stages: { focus: ProductFocus; label: string; note: string }[] = [
+  { focus: "overview", label: "The workspace", note: "Everything in one place." },
+  { focus: "documents", label: "Documents", note: "Intake, states, and what still needs work." },
+  { focus: "comparison", label: "Comparison", note: "Two documents lined up side by side." },
+  { focus: "fields", label: "Extracted fields", note: "Structured values, with coverage per field." },
+  { focus: "insights", label: "Insights", note: "What changed, and what to review." },
+];
+
 export function WorkspaceScene() {
   const ref = useRef<HTMLElement>(null);
   const y = useScrollY();
@@ -27,16 +40,20 @@ export function WorkspaceScene() {
 
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const travel = Math.max(1, box.height - vh);
-  const p = reducedMotion() ? 0.55 : Math.min(1, Math.max(0, (y - box.top) / travel));
+  const p = reducedMotion() ? 0.5 : Math.min(1, Math.max(0, (y - box.top) / travel));
 
-  const rise = map(p, 0.02, 0.36, 0, 1); // enters from below, small
-  const fadeWords = map(p, 0.26, 0.44, 0, 1); // the words step aside
-  const push = map(p, 0.46, 0.96, 0, 1); // camera moves in
+  const rise = map(p, 0.02, 0.3, 0, 1); // enters small, from below
+  const fadeWords = map(p, 0.1, 0.26, 0, 1); // the words step aside
+  const tour = map(p, 0.36, 0.96, 0, 1); // the guided pass
 
-  const scale = 0.66 + rise * 0.34 + push * 0.22;
-  const shift = (1 - rise) * 16 - push * 6;
-  const originX = 50 - push * 16;
-  const frame = 1 - push * 0.6;
+  const i = Math.min(stages.length - 1, Math.floor(tour * stages.length));
+  const stage = stages[i];
+
+  /* restrained camera: it stays recognisable as an application */
+  const scale = 0.72 + rise * 0.28 + tour * 0.08;
+  const shiftY = (1 - rise) * 12;
+  const originX = stage.focus === "comparison" || stage.focus === "insights" ? 78 : stage.focus === "documents" ? 42 : 50;
+  const originY = 40;
 
   return (
     <section
@@ -44,10 +61,10 @@ export function WorkspaceScene() {
       id="workspace"
       data-scene
       data-tone="dark"
-      data-label="The workspace"
+      data-label="Workflow"
       data-index="06"
-      className="grain"
-      style={{ position: "relative", background: c.ink, color: c.onDark, height: "300vh" }}
+      className="mat"
+      style={{ position: "relative", background: c.ink, color: c.onDark, height: "320vh" }}
     >
       <div
         style={{
@@ -60,26 +77,26 @@ export function WorkspaceScene() {
           justifyContent: "center",
         }}
       >
-        {/* headline layer — recedes as the product takes over */}
+        {/* headline layer */}
         <div
           style={{
             position: "absolute",
             top: "clamp(88px, 12vh, 132px)",
             left: 0,
             right: 0,
-            zIndex: 3,
+            zIndex: 4,
             maxWidth: shell,
             margin: "0 auto",
             padding: `0 ${gutter}`,
-            opacity: 1 - push * 1.15,
-            transform: `translateY(${-push * 26}px)`,
+            opacity: 1 - fadeWords,
+            transform: `translateY(${-fadeWords * 34}px)`,
             pointerEvents: "none",
           }}
         >
           <Enter>
             <div className="cols c-6-6" style={{ alignItems: "end" }}>
               <div>
-                <Micro tone="dark">06 / 11 — The workspace</Micro>
+                <Micro tone="dark">06 / 11 — Workflow</Micro>
                 <Statement
                   tone="dark"
                   min={1.8}
@@ -105,54 +122,70 @@ export function WorkspaceScene() {
             maxWidth: shell,
             margin: "0 auto",
             padding: `0 ${gutter}`,
-            marginTop: "clamp(60px, 9vh, 120px)",
+            marginTop: "clamp(56px, 8vh, 110px)",
+            perspective: 2200,
           }}
         >
-          {/* framing hairlines that open up as the product grows */}
-          <div
-            aria-hidden
-            style={{
-              position: "absolute",
-              inset: "-6% -1% -6% -1%",
-              border: `1px solid ${c.hairDark}`,
-              opacity: frame * 0.9,
-            }}
-          />
           <div
             style={{
-              height: "min(62vh, 560px)",
-              transform: `scale(${scale}) translateY(${shift}vh)`,
-              transformOrigin: `${originX}% 42%`,
-              boxShadow: `0 ${40 + push * 50}px ${90 + push * 60}px -60px rgba(0,0,0,0.85)`,
+              height: "min(60vh, 540px)",
+              transform: `scale(${scale}) translateY(${shiftY}vh) rotateX(${(1 - rise) * 5}deg)`,
+              transformOrigin: `${originX}% ${originY}%`,
+              boxShadow: `0 ${44 + tour * 40}px ${100 + tour * 50}px -62px rgba(0,0,0,0.9)`,
+              transition: "transform-origin 0.9s cubic-bezier(0.32,0.72,0.24,1)",
               willChange: "transform",
             }}
           >
-            <Workspace />
+            <DocumentAIProductPreview focus={rise > 0.85 ? stage.focus : "overview"} />
           </div>
+
+          {/* the surface it stands on */}
+          <div
+            aria-hidden
+            style={{
+              height: 90,
+              marginTop: 1,
+              background: "linear-gradient(to bottom, rgba(241,238,229,0.055), transparent 72%)",
+              transform: `scaleY(-1) scale(${scale})`,
+              transformOrigin: "top center",
+              opacity: 0.5 * rise,
+              filter: "blur(2px)",
+              pointerEvents: "none",
+            }}
+          />
         </div>
 
-        {/* scene telemetry */}
+        {/* the guide — one line, changing with the camera */}
         <div
           style={{
             position: "absolute",
             bottom: "clamp(20px, 4vh, 44px)",
             left: 0,
             right: 0,
-            zIndex: 4,
+            zIndex: 5,
             maxWidth: shell,
             margin: "0 auto",
             padding: `0 ${gutter}`,
             display: "flex",
+            alignItems: "baseline",
             justifyContent: "space-between",
-            gap: 16,
+            gap: 20,
           }}
         >
-          <span style={{ ...micro, color: c.onDarkFaint }}>
-            {push > 0.6 ? "inside the workspace" : rise > 0.8 ? "workspace" : "loading workspace"}
+          <span key={stage.label} className="scene-tick" style={{ display: "inline-flex", gap: 16, alignItems: "baseline" }}>
+            <span style={{ ...micro, color: c.blueLift }}>
+              {String(i + 1).padStart(2, "0")} / 05
+            </span>
+            <span style={{ ...micro, color: c.onDark }}>{stage.label}</span>
+            <span style={{ ...micro, color: c.onDarkFaint }} className="hide-sm">
+              {stage.note}
+            </span>
           </span>
-          <span style={{ ...micro, color: c.onDarkFaint }} className="hide-sm">
-            placeholder interface — to be replaced by the live product
-          </span>
+          <Ticker
+            tone="dark"
+            active={rise > 0.85}
+            state={rise > 0.85 ? "system / active" : "loading workspace"}
+          />
         </div>
       </div>
     </section>

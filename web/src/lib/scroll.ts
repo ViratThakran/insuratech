@@ -105,7 +105,7 @@ export function useScrollY() {
   return y;
 }
 
-export type Tone = "dark" | "light" | "paper";
+export type Tone = "dark" | "charcoal" | "bone" | "paper";
 
 /**
  * Tracks which [data-scene] block owns the top of the viewport so the
@@ -129,7 +129,7 @@ export function useActiveScene() {
       }
       if (!current) current = nodes[0] ?? null;
       if (!current) return;
-      const tone = (current.dataset.tone as Tone) || "light";
+      const tone = (current.dataset.tone as Tone) || "bone";
       const id = current.id || "";
       const label = current.dataset.label || "";
       const index = current.dataset.index || "";

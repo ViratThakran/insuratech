@@ -1,9 +1,17 @@
-import { c, font, micro } from "../theme";
-import { Annotate, Enter, Explain, Micro, Scene, Statement, State } from "../components/kit";
+import { c, font, meaning, micro } from "../theme";
+import { Annotate, Enter, Explain, Micro, Scene, Statement, State, Ticker } from "../components/kit";
 import { map, useStageProgress } from "../lib/scroll";
 
-const turns: { who: "customer" | "aurevia"; text: string }[] = [
-  { who: "customer", text: "I need to renew our policy." },
+/* ------------------------------------------------------------------ *
+ * SCENE 10 — VOICE AI                                                 *
+ * A call, not a visualiser. The waveform has four states and a         *
+ * whisper of violet keeps this room distinct from Document AI.         *
+ * ------------------------------------------------------------------ */
+
+type Turn = { who: "customer" | "aurevia"; text: string };
+
+const turns: Turn[] = [
+  { who: "customer", text: "We need to renew our policy." },
   { who: "aurevia", text: "Let's review the current coverage and renewal details." },
   { who: "customer", text: "The limit should go up — we've added a second site." },
   { who: "aurevia", text: "Noted. I'll request the updated schedule and flag the limit for your broker." },
@@ -11,25 +19,46 @@ const turns: { who: "customer" | "aurevia"; text: string }[] = [
 
 const outcomes = ["Renewal review scheduled", "Schedule of assets requested", "Limit change flagged for broker"];
 
-function Wave({ level, warm }: { level: number; warm: boolean }) {
-  const n = 56;
+type VState = "listening" | "thinking" | "speaking" | "idle";
+
+/** Amplitude, density and colour all carry the state. */
+function Wave({ state }: { state: VState }) {
+  const n = 64;
+  const conf =
+    state === "speaking"
+      ? { amp: 1, tint: meaning.voice, density: 1 }
+      : state === "listening"
+      ? { amp: 0.42, tint: c.onLightMuted, density: 0.8 }
+      : state === "thinking"
+      ? { amp: 0.14, tint: c.blue, density: 0.35 }
+      : { amp: 0.07, tint: c.onLightFaint, density: 0.5 };
+
   return (
-    <svg viewBox="0 0 420 60" width="100%" aria-hidden style={{ display: "block" }}>
+    <svg viewBox="0 0 480 64" width="100%" aria-hidden style={{ display: "block" }}>
+      <line x1="0" y1="32" x2="480" y2="32" stroke={c.hairLight} opacity="0.55" />
       {Array.from({ length: n }, (_, i) => {
-        const env = Math.sin((i / (n - 1)) * Math.PI);
-        const h = 2 + Math.abs(Math.sin(i * 0.7 + 1.3)) * 42 * level * env;
+        const t = i / (n - 1);
+        const env = Math.sin(t * Math.PI);
+        const carrier =
+          state === "thinking"
+            ? Math.abs(Math.sin(i * 0.35)) * (i % 5 === 0 ? 1 : 0.15)
+            : Math.abs(Math.sin(i * 0.72 + 1.3)) * 0.7 + Math.abs(Math.sin(i * 1.9)) * 0.3;
+        const h = 2 + carrier * 46 * conf.amp * env;
+        const lit = i % Math.max(2, Math.round(9 / conf.density)) === 0;
         return (
           <rect
             key={i}
-            x={i * 7.5 + 1}
-            y={30 - h / 2}
+            x={i * 7.4 + 1}
+            y={32 - h / 2}
             width="2.4"
             height={h}
-            fill={warm && i % 8 === 0 ? c.amber : c.hairLight}
+            rx="1.2"
+            fill={lit ? conf.tint : c.hairLight}
+            opacity={lit ? 0.95 : 0.7}
+            style={{ transition: "fill 0.5s linear" }}
           />
         );
       })}
-      <line x1="0" y1="30" x2="420" y2="30" stroke={c.hairLight} opacity="0.5" />
     </svg>
   );
 }
@@ -37,20 +66,33 @@ function Wave({ level, warm }: { level: number; warm: boolean }) {
 export function Voice() {
   const [ref, p] = useStageProgress<HTMLDivElement>({ start: 0.95, end: 0.2 });
   const run = map(p, 0.08, 0.86, 0, 1) * turns.length;
-  const activeIdx = Math.min(turns.length - 1, Math.floor(run));
-  const active = turns[activeIdx];
-  const speaking = run % 1 < 0.72;
-  const level = speaking ? (active.who === "aurevia" ? 1 : 0.32) : 0.1;
+  const idx = Math.min(turns.length - 1, Math.floor(run));
+  const phase = run % 1;
+  const active = turns[idx];
+
+  /* listening → thinking → speaking, within each turn */
+  const state: VState =
+    run <= 0
+      ? "idle"
+      : active.who === "customer"
+      ? phase < 0.75
+        ? "listening"
+        : "thinking"
+      : phase < 0.8
+      ? "speaking"
+      : "thinking";
+
+  const stateWord = state === "idle" ? "ready" : state;
 
   return (
-    <Scene id="voice" index="10" label="Voice AI" tone="light">
+    <Scene id="voice" index="10" label="Voice" tone="bone">
       <div ref={ref} className="cols c-5-7" style={{ alignItems: "start" }}>
         <Enter style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           <Micro>10 / 11 — Voice AI</Micro>
           <Statement
             min={1.7}
             max={2.9}
-            lines={[{ t: "LET AI HANDLE" }, { t: "THE CONVERSATION.", accent: c.amber }]}
+            lines={[{ t: "LET AI HANDLE" }, { t: "THE CONVERSATION.", accent: meaning.voice }]}
           />
           <div className="fade" style={{ transitionDelay: "120ms" }}>
             <State state="next" />
@@ -59,7 +101,7 @@ export function Voice() {
             Voice AI can take the repetitive part of insurance communication — the chasing,
             scheduling and collecting — and hand the judgement back to a person.
           </Explain>
-          <Annotate color={c.amber} delay={200} style={{ fontSize: 10, maxWidth: "36ch" }}>
+          <Annotate color={c.brass} delay={200} style={{ fontSize: 10, maxWidth: "36ch" }}>
             In development. Calls are always identified as automated; anything that needs judgement
             is passed to a person.
           </Annotate>
@@ -72,6 +114,7 @@ export function Voice() {
             background: c.sheet,
             display: "flex",
             flexDirection: "column",
+            boxShadow: "0 34px 70px -56px rgba(10,11,13,0.45)",
           }}
         >
           <div
@@ -79,47 +122,37 @@ export function Voice() {
               display: "flex",
               justifyContent: "space-between",
               gap: 12,
-              padding: "11px 16px",
+              padding: "12px 16px",
               borderBottom: `1px solid ${c.hairLight}`,
-              background: c.paperRaised,
+              background: c.bone,
             }}
           >
-            <span style={{ ...micro, color: c.onLight, display: "inline-flex", alignItems: "center", gap: 8 }}>
-              <span
-                aria-hidden
-                className={speaking ? "breathe" : undefined}
-                style={{ width: 5, height: 5, borderRadius: "50%", background: c.amber }}
-              />
-              Automated renewal call
-            </span>
+            <Ticker state="Automated renewal call" color={meaning.voice} active={state === "speaking"} />
             <span style={{ ...micro, color: c.onLightFaint }}>
-              {String(Math.floor(run * 0.4)).padStart(2, "0")}:
-              {String(Math.floor((run * 23) % 60)).padStart(2, "0")}
+              00:{String(Math.min(59, Math.floor(run * 14))).padStart(2, "0")}
             </span>
           </div>
 
           <div style={{ padding: "clamp(18px, 2.4vw, 30px)", display: "flex", flexDirection: "column", gap: 20 }}>
             {turns.map((t, i) => {
               const o = map(run, i, i + 0.45, 0, 1);
-              const isActive = i === activeIdx;
+              const isActive = i === idx;
+              const isAurevia = t.who === "aurevia";
               return (
                 <div
                   key={t.text}
                   style={{
                     opacity: o,
                     transform: `translateY(${(1 - o) * 10}px)`,
-                    paddingLeft: t.who === "aurevia" ? "clamp(16px, 4vw, 56px)" : 0,
-                    borderLeft: t.who === "aurevia" ? `1px solid ${isActive ? c.amber : c.hairLight}` : "none",
+                    paddingLeft: isAurevia ? "clamp(16px, 4vw, 56px)" : 0,
+                    borderLeft: isAurevia
+                      ? `1px solid ${isActive ? meaning.voice : c.hairLight}`
+                      : "none",
+                    transition: "border-color 0.5s linear",
                   }}
                 >
-                  <div
-                    style={{
-                      ...micro,
-                      color: t.who === "aurevia" ? c.amber : c.onLightFaint,
-                      marginBottom: 6,
-                    }}
-                  >
-                    {t.who === "aurevia" ? "Aurevia Voice" : "Customer"}
+                  <div style={{ ...micro, color: isAurevia ? meaning.voice : c.onLightFaint, marginBottom: 6 }}>
+                    {isAurevia ? "Aurevia Voice" : "Customer"}
                   </div>
                   <div
                     style={{
@@ -130,8 +163,8 @@ export function Voice() {
                     }}
                   >
                     {t.text}
-                    {isActive && speaking && (
-                      <span className="caret" style={{ color: c.amber }}>
+                    {isActive && state === "speaking" && (
+                      <span className="caret" style={{ color: meaning.voice }}>
                         {" "}
                         |
                       </span>
@@ -142,21 +175,25 @@ export function Voice() {
             })}
           </div>
 
-          <div style={{ padding: "0 clamp(18px, 2.4vw, 30px) 14px" }}>
-            <Wave level={level} warm={active.who === "aurevia"} />
+          <div style={{ padding: "0 clamp(18px, 2.4vw, 30px) 10px" }}>
+            <Wave state={state} />
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+              <Micro color={state === "speaking" ? meaning.voice : c.onLightFaint}>{stateWord}</Micro>
+              <Micro>fictional demonstration</Micro>
+            </div>
           </div>
 
           <div
             style={{
               borderTop: `1px solid ${c.hairLight}`,
               padding: "14px clamp(18px, 2.4vw, 30px)",
-              background: c.paperRaised,
+              background: c.bone,
               display: "flex",
               flexDirection: "column",
               gap: 8,
             }}
           >
-            <span style={{ ...micro, color: c.onLightFaint }}>Workflow written back</span>
+            <Micro>Workflow written back</Micro>
             {outcomes.map((o, i) => {
               const on = run > turns.length - 1 + i * 0.12;
               return (
@@ -172,7 +209,7 @@ export function Voice() {
                     transition: "color 0.5s linear, opacity 0.5s linear",
                   }}
                 >
-                  <span aria-hidden style={{ width: 16, height: 1, background: on ? c.amber : c.hairLight }} />
+                  <span aria-hidden style={{ width: 16, height: 1, background: on ? meaning.stable : c.hairLight }} />
                   {o}
                 </span>
               );

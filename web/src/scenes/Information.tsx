@@ -1,4 +1,4 @@
-import { c, font, micro, statement } from "../theme";
+import { c, font, meaning, micro, statement } from "../theme";
 import { Enter, Explain, Scene, SceneMark, Statement } from "../components/kit";
 import { map, useStageProgress } from "../lib/scroll";
 
@@ -52,7 +52,7 @@ function DataBehaviour({ p }: { p: number }) {
               letterSpacing: "0.08em",
               padding: "9px 6px",
               textAlign: "center",
-              color: i === 6 ? c.blue : c.onLightMuted,
+              color: i === 6 ? meaning.stable : c.onLightMuted,
               borderRight: (i + 1) % 4 ? `1px solid ${c.hairLightSoft}` : undefined,
               borderBottom: i < 8 ? `1px solid ${c.hairLightSoft}` : undefined,
               opacity: o,
@@ -73,7 +73,7 @@ function RiskBehaviour({ p }: { p: number }) {
     .join(" ");
   return (
     <svg viewBox="0 0 240 90" width="100%" aria-hidden style={{ display: "block", maxWidth: 270 }}>
-      <line x1="0" y1="46" x2="240" y2="46" stroke={c.hairLight} strokeDasharray="2 6" />
+      <line x1="0" y1="46" x2="240" y2="46" stroke={c.brass} strokeOpacity="0.5" strokeDasharray="2 6" />
       <path
         d={d}
         fill="none"
@@ -88,9 +88,9 @@ function RiskBehaviour({ p }: { p: number }) {
         cx={240 * map(p, 0.05, 0.75, 0, 1)}
         cy={80 - (pts[Math.min(pts.length - 1, Math.floor(map(p, 0.05, 0.75, 0, 1) * (pts.length - 1)))] ?? 0) * 0.75}
         r="4"
-        fill={c.amber}
+        fill={c.brass}
       />
-      <text x="150" y="88" style={{ ...micro, fontSize: 8 }} fill={c.onLightFaint}>
+      <text x="150" y="88" style={{ ...micro, fontSize: 8 }} fill={c.brass}>
         THRESHOLD
       </text>
     </svg>
@@ -252,16 +252,16 @@ function Row({
 
 export function Information() {
   return (
-    <Scene id="information" index="02" label="Information" tone="light" grid>
+    <Scene id="information" index="02" label="Information" tone="bone" grid="ledger">
       <div
-        className="cols c-7-5"
+        className="cols c-8-4"
         style={{ alignItems: "end", marginBottom: "clamp(56px, 8vw, 110px)" }}
       >
         <Enter>
           <SceneMark index="02" label="Information" />
           <Statement
             min={2}
-            max={4.6}
+            max={4.2}
             style={{ marginTop: 26 }}
             lines={[{ t: "INSURANCE RUNS" }, { t: "ON INFORMATION." }]}
           />
