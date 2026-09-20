@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { c, font, gutter, micro, shell, statement } from "../theme";
 import { Act, ActFill, Enter, Explain, Micro } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { map, reducedMotion, useScrollY } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -126,7 +127,7 @@ export function Outro() {
             marginTop: -5,
             borderRadius: "50%",
             background: c.blue,
-            boxShadow: `0 0 0 ${4 + signal * 12}px rgba(65,85,232,0.10)`,
+            boxShadow: `0 0 0 ${4 + signal * 12}px rgba(79,99,255,0.10)`,
             opacity: signal,
             transition: "top 0.2s linear",
           }}
@@ -167,9 +168,9 @@ export function Outro() {
               </span>
             </h2>
 
-            <Explain tone="dark" delay={220} style={{ maxWidth: "42ch" }}>
-              Explore Aurevia's AI solutions for insurance documents, risk and workflow automation.
-            </Explain>
+            <div className="fade" style={{ transitionDelay: "240ms", maxWidth: 620 }}>
+              <Thread role="resolve" tone="dark" height={44} />
+            </div>
 
             {/* the one filled action on the page */}
             <div
@@ -183,9 +184,6 @@ export function Outro() {
               }}
             >
               <ActFill href="mailto:hello@aurevia.ai">Talk to Aurevia</ActFill>
-              <Act href="#solutions" tone="dark">
-                Explore solutions
-              </Act>
             </div>
           </Enter>
         </div>

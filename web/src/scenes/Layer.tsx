@@ -20,6 +20,11 @@ const outbound = [
 export function Layer() {
   const [ref, p] = useStageProgress<HTMLDivElement>({ start: 0.95, end: 0.15 });
 
+  /* three depths: the ecosystem drifts slowest, the information fastest */
+  const back = p * 26;
+  const mid = p * 54;
+  const front = p * 96;
+
   /* packets only move while the visitor moves — information travelling through */
   const packets = Array.from({ length: 7 }, (_, i) => ((p * 1.35 + i * 0.145) % 1 + 1) % 1);
 
@@ -56,8 +61,15 @@ export function Layer() {
         }}
         className="cols"
       >
-        {/* inbound — raw language */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* inbound — raw language, the fastest layer */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+            transform: `translate3d(0, ${-front * 0.4}px, 0)`,
+          }}
+        >
           <Micro tone="dark">Business information</Micro>
           {inbound.map((t, i) => {
             const o = map(p, 0.02 + i * 0.05, 0.3 + i * 0.05, 0, 1);
@@ -77,10 +89,11 @@ export function Layer() {
           })}
         </div>
 
-        {/* the layer itself */}
+        {/* the layer itself — the middle depth */}
         <div
           style={{
             position: "relative",
+            transform: `translate3d(0, ${-mid * 0.22}px, 0)`,
             border: `1px solid ${c.hairDark}`,
             background: c.charcoal,
             minHeight: 260,
@@ -157,8 +170,15 @@ export function Layer() {
           </div>
         </div>
 
-        {/* outbound — structured work */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* outbound — the ecosystem sits deepest and moves least */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+            transform: `translate3d(0, ${-back * 0.18}px, 0)`,
+          }}
+        >
           <Micro tone="dark" style={{ textAlign: "right" }}>
             Insurance workflows
           </Micro>

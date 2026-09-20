@@ -257,9 +257,9 @@ export function DocumentAIProductPreview({ focus = "overview" }: { focus?: Produ
                   borderBottom: `1px solid ${c.hairLightSoft}`,
                   alignItems: "center",
                   background: spotlight
-                    ? "rgba(169,124,51,0.07)"
+                    ? "rgba(156,106,58,0.07)"
                     : i === 0 && focus === "documents"
-                    ? "rgba(65,85,232,0.04)"
+                    ? "rgba(79,99,255,0.04)"
                     : "transparent",
                   transition: "background-color 0.5s linear",
                 }}

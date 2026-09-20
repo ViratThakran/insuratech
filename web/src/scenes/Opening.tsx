@@ -338,7 +338,7 @@ export function Opening() {
                 height: 9,
                 borderRadius: "50%",
                 background: c.blue,
-                boxShadow: `0 0 0 ${resolve * 9}px rgba(65,85,232,0.10)`,
+                boxShadow: `0 0 0 ${resolve * 9}px rgba(79,99,255,0.10)`,
                 opacity: resolve,
               }}
             />

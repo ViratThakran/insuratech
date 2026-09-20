@@ -125,7 +125,7 @@ function DocWorld({ p }: { p: number }) {
               color: i === 0 ? c.onLightFaint : c.onLightMuted,
               marginBottom: i === 0 ? 14 : 6,
               background:
-                i === 3 && pull > 0.4 ? "rgba(65,85,232,0.13)" : "transparent",
+                i === 3 && pull > 0.4 ? "rgba(79,99,255,0.13)" : "transparent",
               transition: "background-color 0.6s linear",
             }}
           >
@@ -463,7 +463,7 @@ export function Solutions() {
         <Enter>
           <div className="cols c-7-5" style={{ alignItems: "end" }}>
             <div>
-              <Micro>04 / 11 — Solutions</Micro>
+              <Micro>04 — Solutions</Micro>
               <Statement
                 min={1.9}
                 max={4}

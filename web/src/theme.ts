@@ -6,45 +6,48 @@
 
 export const c = {
   /* surfaces */
-  ink: "#0A0B0D",
-  charcoal: "#111315",
-  bone: "#F1EEE5",
-  paper: "#E8E4DA",
-  sheet: "#FAF8F3",
+  ink: "#090B0E",
+  charcoal: "#15171B",
+  bone: "#F2EFE7",
+  paper: "#E7E2D8",
+  sheet: "#FBF9F4",
 
   /* strokes */
-  hairLight: "#D7D1C2",
-  hairLightSoft: "#E2DCCF",
-  hairDark: "#1E2126",
-  hairDarkSoft: "#171A1E",
+  hairLight: "#D5CFC0",
+  hairLightSoft: "#E1DBCD",
+  hairDark: "#212429",
+  hairDarkSoft: "#191C20",
 
   /* text */
-  onDark: "#F1EEE5",
-  onDarkMuted: "#8E949E",
-  onDarkFaint: "#4F555E",
-  onLight: "#0A0B0D",
-  onLightMuted: "#575C64",
-  onLightFaint: "#938D80",
+  onDark: "#F2EFE7",
+  onDarkMuted: "#8F959F",
+  onDarkFaint: "#50565F",
+  onLight: "#090B0E",
+  onLightMuted: "#565B63",
+  onLightFaint: "#928C7F",
 
-  /* AUREVIA BLUE — the company, intelligence, the active state */
-  blue: "#4155E8",
-  blueLift: "#7887FF",
-  blueSoft: "#5D6FF2",
+  /* AUREVIA COBALT — the company, intelligence, the active system.
+     Never used merely because something is interactive. */
+  blue: "#4F63FF",
+  blueLift: "#7184FF",
+  blueSoft: "#6376FF",
 
-  /* BRASS — change, attention, review */
-  brass: "#A97C33",
-  brassLift: "#C99A58",
-  amber: "#B98446",
+  /* OXIDIZED COPPER — change, attention, comparison */
+  brass: "#9C6A3A",
+  brassLift: "#B47C45",
+  amber: "#B47C45",
 
-  /* semantic state — used once or twice, never as decoration */
-  green: "#4E7A63",
-  greenLift: "#6E9B83",
-  red: "#9E4F4F",
-  redLift: "#B95F5F",
+  /* SOFT SAGE — processed, stable, confirmed */
+  green: "#69856F",
+  greenLift: "#7D9984",
 
-  /* voice carries a whisper of violet so it is not "another blue scene" */
-  violet: "#6A5AC6",
-  violetLift: "#9B8DE0",
+  /* MUTED WINE — issue, elevated, exception */
+  red: "#8E4F55",
+  redLift: "#A45D63",
+
+  /* voice keeps a trace of its own so the room is not another cobalt scene */
+  violet: "#6F62B8",
+  violetLift: "#9186D6",
 };
 
 /** What a colour means, so scenes stay consistent. */

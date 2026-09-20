@@ -1,5 +1,6 @@
 import { c, font, meaning, micro, statement } from "../theme";
 import { Act, Enter, Explain, Micro, Scene, Statement } from "../components/kit";
+import { EditorialImage } from "../components/EditorialImage";
 import { map, useStageProgress } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -22,85 +23,53 @@ const audiences = [
   ["ENTERPRISES", "Sight of the policies sitting across the business."],
 ];
 
-/** The human moment: a page as it actually looks after a broker has read it. */
-function MarkedPage({ p }: { p: number }) {
-  const ink = map(p, 0.25, 0.75, 0, 1);
+/** The human moment: the desk, and the note someone left on it. */
+function HumanMoment({ p }: { p: number }) {
+  const ink = map(p, 0.2, 0.7, 0, 1);
   return (
-    <div
-      aria-label="A renewal page after review, annotated by hand"
-      role="img"
-      style={{
-        position: "relative",
-        background: c.sheet,
-        border: `1px solid ${c.hairLight}`,
-        boxShadow: "0 40px 70px -50px rgba(10,11,13,0.5)",
-        padding: "clamp(22px, 2.6vw, 38px)",
-        transform: "rotate(-0.6deg)",
-      }}
-      className="mat"
-      data-tone="sheet"
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
-        <Micro tone="paper">Renewal review · page 41 / 62</Micro>
-        <Micro tone="paper">Specimen</Micro>
-      </div>
+    <div style={{ position: "relative" }}>
+      <EditorialImage
+        kind="workspace"
+        ratio="5 / 4"
+        alt="A renewal being reviewed — documents, a pen, a marked clause"
+        showCaption={false}
+      />
 
-      {[
-        "In consideration of the premium paid, the Company agrees to",
-        "indemnify the Insured in respect of the Property described in",
-        "the Schedule, subject to the terms, exclusions and conditions",
-        "set out herein and to the limits stated in Section 4.",
-      ].map((l, i) => (
-        <p
-          key={l}
-          style={{
-            fontFamily: font.serif,
-            fontSize: "clamp(0.82rem, 1vw, 0.95rem)",
-            lineHeight: 1.85,
-            color: c.onLight,
-            margin: 0,
-            textAlign: "justify",
-            background: i === 3 ? `rgba(169,124,51,${0.14 * ink})` : "transparent",
-          }}
-        >
-          {l}
-        </p>
-      ))}
-
-      {/* a hand in the margin */}
+      {/* the note breaks out of the frame, over the image and past its edge */}
       <div
         style={{
-          marginTop: 26,
-          paddingTop: 16,
-          borderTop: `1px dashed ${c.hairLight}`,
-          display: "flex",
-          gap: 14,
-          alignItems: "flex-start",
+          position: "absolute",
+          right: "-6%",
+          bottom: "-8%",
+          maxWidth: "62%",
+          background: c.sheet,
+          border: `1px solid ${c.hairLight}`,
+          boxShadow: "0 30px 60px -44px rgba(9,11,14,0.55)",
+          padding: "16px 20px 14px",
           opacity: ink,
-          transform: `translateY(${(1 - ink) * 8}px)`,
+          transform: `translateY(${(1 - ink) * 14}px) rotate(-0.8deg)`,
         }}
       >
-        <span aria-hidden style={{ ...micro, color: c.brass, paddingTop: 4 }}>
-          ↳
-        </span>
-        <span
-          style={{
-            fontFamily: font.serif,
-            fontStyle: "italic",
-            fontSize: "clamp(0.95rem, 1.25vw, 1.15rem)",
-            lineHeight: 1.5,
-            color: c.brass,
-          }}
-        >
-          Limit moved — check the flood sub-limit before we send this to the client.
-        </span>
-      </div>
-
-      <div style={{ marginTop: 14, display: "flex", justifyContent: "space-between" }}>
-        <Micro tone="paper">Broker's note</Micro>
-        <Micro tone="paper" color={meaning.stable}>
-          Aurevia flagged this in 1 pass
-        </Micro>
+        <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+          <span aria-hidden style={{ ...micro, color: c.brass, paddingTop: 3 }}>
+            ↳
+          </span>
+          <span
+            style={{
+              fontFamily: font.serif,
+              fontStyle: "italic",
+              fontSize: "clamp(0.95rem, 1.2vw, 1.12rem)",
+              lineHeight: 1.45,
+              color: c.brass,
+            }}
+          >
+            Limit moved — check the flood sub-limit before this goes to the client.
+          </span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 12 }}>
+          <Micro>Broker's note · page 41 / 62</Micro>
+          <Micro color={meaning.stable}>flagged in one pass</Micro>
+        </div>
       </div>
     </div>
   );
@@ -118,7 +87,7 @@ export function Brokers() {
       <Enter>
         <div className="cols c-7-5" style={{ alignItems: "start" }}>
           <div>
-            <Micro>08 / 11 — Brokers</Micro>
+            <Micro>08 — Brokers</Micro>
             <Statement
               min={1.7}
               max={3.6}
@@ -221,15 +190,20 @@ export function Brokers() {
         ref={humanRef}
         className="cols"
         style={{
-          marginTop: "clamp(64px, 9vw, 130px)",
+          marginTop: "clamp(84px, 11vw, 160px)",
           display: "grid",
           gridTemplateColumns: "minmax(0, 6.4fr) minmax(0, 5.6fr)",
           gap: "clamp(28px, 4vw, 72px)",
           alignItems: "center",
         }}
       >
-        <div style={{ transform: `translateY(${(1 - map(hp, 0.1, 0.7, 0, 1)) * 26}px)` }}>
-          <MarkedPage p={hp} />
+        <div
+          style={{
+            transform: `translateY(${(1 - map(hp, 0.1, 0.7, 0, 1)) * 26}px)`,
+            marginLeft: "calc(-1 * clamp(20px, 4.4vw, 64px))",
+          }}
+        >
+          <HumanMoment p={hp} />
         </div>
 
         <Enter style={{ display: "flex", flexDirection: "column", gap: 22 }}>

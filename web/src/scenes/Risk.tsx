@@ -1,5 +1,6 @@
 import { c, font, meaning, micro, statement } from "../theme";
 import { Act, Annotate, Enter, Explain, Micro, Scene, Statement, State, Ticker } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { map, useStageProgress } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -108,7 +109,7 @@ export function Risk() {
         <Enter>
           <div className="cols c-4-8" style={{ alignItems: "end", marginBottom: "clamp(34px, 5vw, 62px)" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <Micro tone="charcoal">09 / 11 — Risk Intelligence</Micro>
+              <Micro tone="charcoal">09 — Risk Intelligence</Micro>
               <div className="fade" style={{ transitionDelay: "80ms" }}>
                 <State state="building" tone="charcoal" />
               </div>
@@ -130,6 +131,8 @@ export function Risk() {
             />
           </div>
         </Enter>
+
+        <Thread role="signal" tone="dark" height={58} style={{ marginBottom: "clamp(14px, 2vw, 26px)" }} />
 
         {/* the observation wall */}
         <div

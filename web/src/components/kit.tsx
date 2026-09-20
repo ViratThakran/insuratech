@@ -106,10 +106,8 @@ export function SceneMark({
         justifyContent: align === "right" ? "flex-end" : "flex-start",
       }}
     >
-      <span style={{ ...micro, color: t.faint }}>
-        {index} / {total}
-      </span>
-      <span aria-hidden style={{ width: 40, height: 1, background: t.hair }} />
+      <span style={{ ...micro, color: t.faint }}>{index}</span>
+      <span aria-hidden style={{ width: 28, height: 1, background: t.hair }} />
       <span style={{ ...annotation, fontSize: 10.5, color: t.muted }}>{label}</span>
     </div>
   );

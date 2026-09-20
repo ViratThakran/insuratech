@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { c, gutter, micro, shell } from "../theme";
 import { Enter, Explain, Micro, Statement, Ticker } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { DocumentAIProductPreview, type ProductFocus } from "../components/DocumentAIProductPreview";
 import { map, reducedMotion, useScrollY } from "../lib/scroll";
 
@@ -61,7 +62,7 @@ export function WorkspaceScene() {
       id="workspace"
       data-scene
       data-tone="dark"
-      data-label="Workflow"
+      data-label="Product view"
       data-index="06"
       className="mat"
       style={{ position: "relative", background: c.ink, color: c.onDark, height: "320vh" }}
@@ -96,18 +97,17 @@ export function WorkspaceScene() {
           <Enter>
             <div className="cols c-6-6" style={{ alignItems: "end" }}>
               <div>
-                <Micro tone="dark">06 / 11 — Workflow</Micro>
+                <Micro tone="dark">06 — Product view</Micro>
                 <Statement
                   tone="dark"
-                  min={1.8}
-                  max={3.6}
+                  min={1.6}
+                  max={3}
                   style={{ marginTop: 16 }}
-                  lines={[{ t: "THE PRODUCT," }, { t: "NOT A MOCKUP.", accent: true }]}
+                  lines={[{ t: "DOCUMENT AI" }, { t: "PRODUCT VIEW", accent: true }]}
                 />
               </div>
-              <Explain tone="dark" delay={120} style={{ maxWidth: "40ch" }}>
-                Documents, states, extracted fields and comparisons in one workspace. Shown here as
-                an illustrative interface with example data.
+              <Explain tone="dark" delay={120} style={{ maxWidth: "38ch" }}>
+                The same record, now inside Aurevia. Illustrative interface, example data.
               </Explain>
             </div>
           </Enter>

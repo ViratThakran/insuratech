@@ -88,8 +88,8 @@ export function Nav() {
               style={{ ...micro, color: faint, whiteSpace: "nowrap" }}
               aria-live="polite"
             >
-              {scene.index}
-              {scene.label ? ` — ${scene.label}` : ""}
+              {scene.index && scene.index !== "—" ? `${scene.index} — ` : ""}
+              {scene.label}
             </span>
           </span>
 
@@ -172,32 +172,16 @@ export function Nav() {
 }
 
 /* ------------------------------------------------------------------ *
- * FOOTER — a continuation of the art direction, not an afterthought.  *
+ * FOOTER — kept deliberately plain.                                   *
  * ------------------------------------------------------------------ */
-const groups: { title: string; items: [string, string][] }[] = [
-  {
-    title: "Solutions",
-    items: [
-      ["Document AI", "#document-ai"],
-      ["Risk Intelligence", "#risk"],
-      ["Voice AI", "#voice"],
-      ["The platform", "#platform"],
-    ],
-  },
-  {
-    title: "Company",
-    items: [
-      ["About", "#layer"],
-      ["Contact", "mailto:hello@aurevia.ai"],
-    ],
-  },
-  {
-    title: "Legal",
-    items: [
-      ["Privacy", "#talk"],
-      ["Terms", "#talk"],
-    ],
-  },
+const footLinks: [string, string][] = [
+  ["Document AI", "#document-ai"],
+  ["Risk Intelligence", "#risk"],
+  ["Voice AI", "#voice"],
+  ["About", "#layer"],
+  ["Contact", "mailto:hello@aurevia.ai"],
+  ["Privacy", "#talk"],
+  ["Terms", "#talk"],
 ];
 
 export function Footer() {
@@ -219,62 +203,54 @@ export function Footer() {
           zIndex: 2,
           maxWidth: shell,
           margin: "0 auto",
-          padding: `clamp(48px, 7vw, 84px) ${gutter} 26px`,
+          padding: `clamp(40px, 5vw, 64px) ${gutter} 24px`,
         }}
       >
         <div
           className="cols"
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(0, 5fr) repeat(3, minmax(0, 2.4fr))",
-            gap: "clamp(28px, 4vw, 56px)",
+            gridTemplateColumns: "minmax(0, 4fr) minmax(0, 8fr)",
+            gap: "clamp(24px, 4vw, 64px)",
             alignItems: "start",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <Mark fg={c.onDark} />
             <span style={{ ...micro, color: c.onDarkFaint }}>AI &amp; Intelligence for Insurance</span>
-            <span
-              style={{
-                fontFamily: font.serif,
-                fontStyle: "italic",
-                fontSize: 15,
-                color: c.onDarkMuted,
-                maxWidth: "24ch",
-              }}
-            >
-              We turn business risk into intelligence.
-            </span>
           </div>
 
-          {groups.map((g) => (
-            <div key={g.title} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <span style={{ ...micro, color: c.onDarkFaint }}>{g.title}</span>
-              {g.items.map(([label, href]) => (
-                <a key={label} href={href} className="nav-item" style={{ ...micro, color: c.onDark, opacity: 0.72 }}>
-                  {label}
-                </a>
-              ))}
-            </div>
-          ))}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "12px clamp(20px, 3vw, 44px)",
+              justifyContent: "flex-start",
+            }}
+          >
+            {footLinks.map(([label, href]) => (
+              <a key={label} href={href} className="nav-item" style={{ ...micro, color: c.onDark, opacity: 0.68 }}>
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
 
         <div
           style={{
-            marginTop: "clamp(34px, 5vw, 60px)",
-            paddingTop: 18,
+            marginTop: "clamp(28px, 4vw, 48px)",
+            paddingTop: 16,
             borderTop: `1px solid ${c.hairDark}`,
             display: "flex",
             flexWrap: "wrap",
-            gap: "12px 28px",
+            gap: "10px 24px",
             alignItems: "baseline",
           }}
         >
           <span style={{ ...micro, color: c.onDarkFaint }}>Aurevia / intelligence system</span>
-          <span style={{ ...micro, color: c.onDarkFaint, marginLeft: "auto", maxWidth: "62ch", lineHeight: 1.9 }}>
-            Aurevia is a technology company building AI solutions for the insurance ecosystem. It is
-            not an insurer, broker or reinsurer. Documents, interfaces, values and conversations
-            shown here are fictional illustrations — not customer data or performance claims.
+          <span style={{ ...micro, color: c.onDarkFaint, marginLeft: "auto", maxWidth: "58ch", lineHeight: 1.9 }}>
+            A technology company building AI solutions for the insurance ecosystem — not an insurer,
+            broker or reinsurer. Documents, interfaces and values shown here are fictional.
           </span>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { c, font, meaning, micro } from "../theme";
 import { Annotate, Enter, Explain, Micro, Scene, Statement, State, Ticker } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { map, useStageProgress } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -86,9 +87,11 @@ export function Voice() {
 
   return (
     <Scene id="voice" index="10" label="Voice" tone="bone">
+      <Thread role="voice" tone="light" height={58} style={{ marginBottom: "clamp(20px, 3vw, 40px)" }} />
+
       <div ref={ref} className="cols c-5-7" style={{ alignItems: "start" }}>
         <Enter style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-          <Micro>10 / 11 — Voice AI</Micro>
+          <Micro>10 — Voice AI</Micro>
           <Statement
             min={1.7}
             max={2.9}

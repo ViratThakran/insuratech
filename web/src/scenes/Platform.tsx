@@ -1,5 +1,6 @@
 import { c, font, meaning, micro } from "../theme";
 import { Enter, Explain, Micro, Scene, Statement } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { map, useStageProgress } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -50,7 +51,7 @@ export function Platform() {
       <Enter>
         <div className="cols c-6-6" style={{ alignItems: "end", marginBottom: "clamp(40px, 6vw, 84px)" }}>
           <div>
-            <Micro tone="dark">11 / 11 — The platform</Micro>
+            <Micro tone="dark">11 — The platform</Micro>
             <Statement
               tone="dark"
               min={1.5}
@@ -65,6 +66,8 @@ export function Platform() {
           </Explain>
         </div>
       </Enter>
+
+      <Thread role="converge" tone="dark" height={54} style={{ marginBottom: "clamp(10px, 2vw, 24px)" }} />
 
       <div ref={ref} style={{ position: "relative" }}>
         <svg viewBox="0 0 100 100" width="100%" aria-hidden style={{ display: "block", minHeight: "min(58vh, 460px)" }}>

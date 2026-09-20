@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { c, font, gutter, meaning, micro, shell, statement } from "../theme";
 import { Act, Enter, Explain, Micro, State, Statement, Ticker } from "../components/kit";
+import { Thread } from "../components/Thread";
 import { map, reducedMotion, useScrollY } from "../lib/scroll";
 
 /* ------------------------------------------------------------------ *
@@ -112,7 +113,7 @@ export function DocumentAI() {
           <Enter style={{ marginBottom: "clamp(26px, 4vh, 52px)" }}>
             <div className="cols c-7-5" style={{ alignItems: "end", gap: "clamp(18px, 3vw, 52px)" }}>
               <div>
-                <Micro tone="paper">05 / 11 — Document AI</Micro>
+                <Micro tone="paper">05 — Document AI</Micro>
                 <Statement
                   tone="paper"
                   min={1.9}
@@ -199,7 +200,7 @@ export function DocumentAI() {
                     right: 0,
                     top: `${20 + map(run, 0, 1, 0, 58)}%`,
                     height: 26,
-                    background: `linear-gradient(to bottom, rgba(65,85,232,0) 0%, rgba(65,85,232,0.05) 60%, rgba(65,85,232,0.14) 100%)`,
+                    background: `linear-gradient(to bottom, rgba(79,99,255,0) 0%, rgba(79,99,255,0.05) 60%, rgba(79,99,255,0.14) 100%)`,
                     borderBottom: `1px solid ${c.blue}`,
                     opacity: run > 0 && run < 1 ? 0.75 : 0,
                     transition: "opacity 0.4s linear",
@@ -268,9 +269,9 @@ export function DocumentAI() {
                                 background: lit
                                   ? held
                                     ? f?.tone === "change"
-                                      ? "rgba(169,124,51,0.11)"
-                                      : "rgba(65,85,232,0.09)"
-                                    : "rgba(65,85,232,0.2)"
+                                      ? "rgba(156,106,58,0.11)"
+                                      : "rgba(79,99,255,0.09)"
+                                    : "rgba(79,99,255,0.2)"
                                   : "transparent",
                                 boxShadow: held ? `inset 0 -1px 0 ${tint}` : "none",
                                 transition: "background-color 0.35s linear, box-shadow 0.35s linear",
@@ -377,6 +378,11 @@ export function DocumentAI() {
                 <Micro tone="paper">reviewed by a person</Micro>
               </div>
             </div>
+          </div>
+
+          {/* the thread arrives to do its work */}
+          <div style={{ marginTop: "clamp(10px, 2vh, 22px)" }}>
+            <Thread role="extract" tone="light" height={52} annotate />
           </div>
 
           {/* ---------- the three verbs ---------- */}
