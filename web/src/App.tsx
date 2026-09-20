@@ -1,37 +1,34 @@
-import { useReveal } from "./hooks/useReveal";
 import { Footer, Nav } from "./components/Nav";
-import { Hero } from "./sections/Hero";
-import { Industry } from "./sections/Industry";
-import { Role } from "./sections/Role";
-import { Solutions } from "./sections/Solutions";
-import { DocumentAI } from "./sections/DocumentAI";
-import { Workflow } from "./sections/Workflow";
-import { Comparison } from "./sections/Comparison";
-import { Value } from "./sections/Value";
-import { Risk } from "./sections/Risk";
-import { Voice } from "./sections/Voice";
-import { Platform } from "./sections/Platform";
-import { Talk } from "./sections/Talk";
+import { Opening } from "./scenes/Opening";
+import { Information } from "./scenes/Information";
+import { Layer } from "./scenes/Layer";
+import { Solutions } from "./scenes/Solutions";
+import { DocumentAI } from "./scenes/DocumentAI";
+import { WorkspaceScene } from "./scenes/WorkspaceScene";
+import { Comparison } from "./scenes/Comparison";
+import { People } from "./scenes/People";
+import { Risk } from "./scenes/Risk";
+import { Voice } from "./scenes/Voice";
+import { Platform } from "./scenes/Platform";
+import { Outro } from "./scenes/Outro";
 
 export default function App() {
-  useReveal();
-
   return (
     <>
       <Nav />
       <main>
-        <Hero />
-        <Industry />
-        <Role />
+        <Opening />
+        <Information />
+        <Layer />
         <Solutions />
         <DocumentAI />
-        <Workflow />
+        <WorkspaceScene />
         <Comparison />
-        <Value />
+        <People />
         <Risk />
         <Voice />
         <Platform />
-        <Talk />
+        <Outro />
       </main>
       <Footer />
     </>
